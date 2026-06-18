@@ -4,6 +4,12 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 
 ---
 
+## AI
+
+| Title | Description |
+|-------|-------------|
+| [Agent / Skill / MCP / Workflow Guide](AI/agent-skill-mcp-workflow-guide.md) | Compare AI coding-tool extension mechanisms across Claude Code, Codex, and Copilot |
+
 ## Git
 
 | Title | Description |
