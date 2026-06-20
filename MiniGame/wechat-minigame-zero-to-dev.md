@@ -1,166 +1,167 @@
 # WeChat Mini Game: Zero to Game Development Framework
 
-A step-by-step guide to building a reusable mini game framework from scratch — after completing this tutorial, you can jump directly into game logic development without ever touching WeChat-specific integration code again.
+一份从零开始构建微信小游戏可复用框架的完整教程——完成本教程后，你可以直接进入游戏逻辑开发，无需再关心任何微信平台本身的框架接入代码。
 
-> **Target audience:** Developers with basic JavaScript knowledge, zero mini game experience.
-> **Outcome:** A production-ready project skeleton with game loop, Canvas rendering, touch input, audio, resource loading, scene management, screen adaptation, and lifecycle handling — all wired up and ready for game content.
+> **目标读者：** 具备基础 JavaScript 知识、零小游戏开发经验的开发者。
+> **产出物：** 一个可直接用于生产环境的项目骨架，包含游戏循环、Canvas 渲染、触摸输入、音频管理、资源加载、场景管理和屏幕适配——全部开箱即用，只需填充游戏内容即可。
+> **开发环境：** macOS 14 (Sonoma) + Intel MacBook Pro + 微信开发者工具。
 
 ---
 
-## 1. Prerequisites
+## 1. 准备工作
 
-### 1.1 Development Environment
+### 1.1 开发环境
 
-This tutorial is written for **macOS 14 (Sonoma) on Intel MacBook Pro**. All paths and commands follow macOS conventions.
+本教程基于 **macOS 14 (Sonoma) + Intel MacBook Pro** 编写。所有路径和命令均遵循 macOS 约定。
 
-| Item | Specification |
-|------|--------------|
-| **Hardware** | MacBook Pro with Intel CPU |
-| **OS** | macOS 14 (Sonoma) |
-| **IDE** | WeChat DevTools (macOS x64 version) |
-| **Code Editor** | VS Code (recommended for syntax highlighting and terminal integration) |
+| 项目 | 规格 |
+|------|------|
+| **硬件** | MacBook Pro，Intel CPU |
+| **操作系统** | macOS 14 (Sonoma) |
+| **IDE** | 微信开发者工具（macOS x64 版） |
+| **代码编辑器** | VS Code（推荐，用于语法高亮和终端集成） |
 
-> 💡 If you are on macOS 15 (Sequoia), the same steps apply. Apple Silicon (M1/M2/M3) Macs should download the ARM64 version of WeChat DevTools instead.
+> 💡 如果你使用 macOS 15 (Sequoia)，步骤完全一致。Apple Silicon (M1/M2/M3) Mac 应下载 ARM64 版本的微信开发者工具。
 
-### 1.2 Account & Registration
+### 1.2 账号注册
 
-1. Visit [WeChat Official Accounts Platform](https://mp.weixin.qq.com/) and register a **Mini Program** account (choose "Mini Game" category if available, otherwise register as Mini Program first and add Mini Game later).
-2. After registration, go to **Development → Development Settings** to get your **AppID** (format: `wxXXXXXXXXXXXXXXXX`).
-3. (Optional but recommended) Add yourself as a developer in **Members Management**.
+1. 访问 [微信公众平台](https://mp.weixin.qq.com/) 注册一个**小程序**账号（如果可选类别中有"小游戏"则直接选，否则先注册小程序再添加小游戏）。
+2. 注册完成后，进入 **开发 → 开发设置** 获取你的 **AppID**（格式：`wxXXXXXXXXXXXXXXXX`）。
+3. （可选但推荐）在 **成员管理** 中将自己添加为开发者。
 
-### 1.3 WeChat DevTools Installation (macOS)
+### 1.3 微信开发者工具安装（macOS）
 
-1. Download the **macOS x64** version from the [official download page](https://developers.weixin.qq.com/minigame/dev/devtools/download.html).
-2. Open the downloaded `.dmg` file and drag `wechatwebdevtools.app` to `/Applications`.
-3. On first launch, macOS Gatekeeper may block the app:
+1. 从 [官方下载页面](https://developers.weixin.qq.com/minigame/dev/devtools/download.html) 下载 **macOS x64** 版本。
+2. 打开下载的 `.dmg` 文件，将 `wechatwebdevtools.app` 拖入 `/Applications`。
+3. 首次启动时，macOS Gatekeeper 可能会阻止该应用：
    ```
    "wechatwebdevtools.app" cannot be opened because it is from an unidentified developer.
    ```
-   **Fix:** Go to **System Preferences → Privacy & Security** and click **"Open Anyway"** next to the blocked prompt. Alternatively, run in Terminal:
+   **修复方法：** 前往 **系统设置 → 隐私与安全性**，在拦截提示旁点击 **"仍要打开"**。或者通过终端运行：
    ```bash
-   sudo spctl --master-disable    # Allows apps from anywhere (use with caution)
-   # Or for a one-time bypass:
+   sudo spctl --master-disable    # 允许任何来源的应用（谨慎使用）
+   # 或者一次性绕过：
    xattr -cr /Applications/wechatwebdevtools.app
    ```
-4. Launch the DevTools. Scan the QR code with your WeChat app to log in.
-5. Create a new project:
-   - Select **Mini Game** as the project type
-   - Choose a project directory (recommended: `~/Documents/Projects/your-game-name/`)
-   - Enter your AppID (or use a "Test Account" for local-only development)
-   - Choose **Pure GL Mode** template
+4. 启动开发者工具。用微信扫码登录。
+5. 创建新项目：
+   - 项目类型选择 **小游戏**
+   - 选择项目目录（建议：`~/Documents/Projects/你的游戏名称/`）
+   - 填入你的 AppID（或选择"测试号"仅用于本地开发）
+   - 选择 **纯 GL 模式** 模板
 
-> ⚠️ **Important:** Avoid project paths containing non-ASCII characters (Chinese, spaces, special symbols). Use ASCII-only paths like `~/Documents/Projects/minigame/`.
+> ⚠️ **重要：** 项目路径中不要包含中文、空格或特殊字符。请使用纯 ASCII 路径，如 `~/Documents/Projects/minigame/`。
 
-### 1.4 Node.js (Optional but Recommended)
+### 1.4 Node.js（可选但推荐）
 
-If you plan to use a bundler (webpack / rollup) or a game engine CLI (Cocos Creator, LayaAir), install Node.js:
+如果你计划使用打包工具（webpack / rollup）或游戏引擎 CLI（Cocos Creator、LayaAir），需要安装 Node.js：
 
 ```bash
-# Install via Homebrew (recommended)
+# 通过 Homebrew 安装（推荐）
 brew install node@20
 
-# Verify installation
+# 验证安装
 node -v   # ≥ 20.x
 npm -v    # ≥ 10.x
 ```
 
-### 1.5 Knowledge Checklist
+### 1.5 预备知识检查
 
-Before starting, ensure you understand:
-- ES6+ JavaScript (modules, classes, arrow functions, Promises)
-- HTML5 Canvas 2D basics (context, drawing, transformations)
-- Basic game loop concept (`requestAnimationFrame`)
+在开始之前，请确保你理解以下概念：
+- ES6+ JavaScript（模块、类、箭头函数、Promise）
+- HTML5 Canvas 2D 基础（context、绘制、变换）
+- 游戏循环的基本概念（`requestAnimationFrame`）
 
 ---
 
-## 2. Understanding the WeChat Mini Game Runtime
+## 2. 理解微信小游戏运行时
 
-### 2.1 What Makes It Different
+### 2.1 它与浏览器的区别
 
-A WeChat mini game runs in a **JavaScript engine** (JavaScriptCore on iOS, V8 on Android), NOT a browser. This means:
+微信小游戏运行在 **JavaScript 引擎**（iOS 用 JavaScriptCore，Android 用 V8）上，**而非浏览器**。这意味着：
 
-| Standard Browser | WeChat Mini Game |
-|------------------|------------------|
+| 标准浏览器环境 | 微信小游戏环境 |
+|----------------|------------------|
 | `document.createElement('canvas')` | `wx.createCanvas()` |
 | `new Image()` | `wx.createImage()` |
 | `new Audio()` | `wx.createInnerAudioContext()` |
-| `window.requestAnimationFrame` | `canvas.requestAnimationFrame()` or `wx.requestAnimationFrame()` |
+| `window.requestAnimationFrame` | `canvas.requestAnimationFrame()` 或 `wx.requestAnimationFrame()` |
 | `localStorage.getItem()` | `wx.getStorageSync()` |
 | `XMLHttpRequest` / `fetch` | `wx.request()` |
 | `addEventListener('touchstart')` | `wx.onTouchStart()` |
 
-**Key insight:** There is no DOM, no `window`, no `document`. The adapter layer bridges this gap.
+**核心认知：** 微信小游戏运行时没有 DOM、没有 `window`、没有 `document`。适配器层的作用就是抹平这些差异。
 
-### 2.2 Lifecycle
+### 2.2 生命周期
 
 ```
-App Launch
+应用启动
     │
     ▼
-wx.onShow()  ← triggered when game comes to foreground
+wx.onShow()  ← 游戏进入前台时触发
     │
     ▼
-[Game loop running]
+[游戏循环运行中]
     │
     ▼
-wx.onHide()  ← triggered when game goes to background (pause game here!)
+wx.onHide()  ← 游戏进入后台时触发（务必在此暂停游戏！）
     │
     ▼
-[Game suspended]  ← re-enters onShow when user returns
+[游戏挂起]  ← 用户返回时重新触发 onShow
 ```
 
-Critical: You **must** pause/resume your game in `onShow`/`onHide` to avoid timer/audio issues when the game is backgrounded.
+关键原则：你**必须**在 `onShow` / `onHide` 中正确地暂停/恢复游戏，否则游戏切到后台后计时器和音频会出现问题。
 
-### 2.3 The Adapter Layer (`weapp-adapter`)
+### 2.3 适配器层（weapp-adapter）
 
-WeChat provides a reference adapter implementation that simulates browser APIs. It is NOT part of the base library — you include it in your project. In this tutorial, we'll include a minimal but complete adapter.
+微信官方提供了一个参考适配器实现，用于模拟浏览器 API。它**不**属于基础库的一部分——你需要将它包含到自己的项目中。在本教程中，我们会内置一个精简但功能完整的适配器。
 
 ---
 
-## 3. Project Initialization
+## 3. 项目初始化
 
-### 3.1 Create the Project
+### 3.1 创建项目
 
-Open WeChat DevTools → Create New Project → select **Mini Game** (not Mini Program).
+打开微信开发者工具 → 新建项目 → 选择 **小游戏**（非小程序）。
 
-Choose a template: **Pure GL Mode** (recommended — no engine overhead, full control).
+模板选择：**纯 GL 模式**（推荐——无引擎负担，完全掌控）。
 
-### 3.2 Project Structure
+### 3.2 项目结构
 
-Here's the complete project skeleton we'll build:
+以下是我们将构建的完整项目骨架：
 
 ```
 your-game/
-├── game.js                       # Entry point — bootstraps the game
-├── game.json                     # Mini game configuration
-├── project.config.json           # DevTools project settings
+├── game.js                       # 入口文件——启动整个游戏
+├── game.json                     # 小游戏运行时配置
+├── project.config.json           # 开发者工具项目配置
 ├── src/
 │   ├── core/
-│   │   ├── Game.js               # Main game class (lifecycle + loop)
-│   │   ├── SceneManager.js       # Scene lifecycle management
-│   │   ├── InputManager.js       # Touch event normalization
-│   │   ├── ResourceLoader.js     # Asset loading & caching
-│   │   ├── AudioManager.js       # Sound effects & BGM
-│   │   └── ScreenAdapter.js      # Screen/DPI adaptation
+│   │   ├── Game.js               # 主游戏类（生命周期 + 游戏循环）
+│   │   ├── SceneManager.js       # 场景生命周期管理
+│   │   ├── InputManager.js       # 触摸事件归一化处理
+│   │   ├── ResourceLoader.js     # 资源加载与缓存
+│   │   ├── AudioManager.js       # 音效与背景音乐
+│   │   └── ScreenAdapter.js      # 屏幕/DPI 适配
 │   ├── scenes/
-│   │   ├── LoadingScene.js       # Initial loading screen
-│   │   ├── MenuScene.js          # Main menu
-│   │   └── GameScene.js          # Your game scene (extend this)
+│   │   ├── LoadingScene.js       # 初始加载界面
+│   │   ├── MenuScene.js          # 主菜单
+│   │   └── GameScene.js          # 你的游戏场景（在此扩展）
 │   ├── utils/
-│   │   ├── utils.js              # Math helpers, sprite helpers
-│   │   └── constants.js          # Game constants
+│   │   ├── utils.js              # 数学辅助函数、精灵绘制工具
+│   │   └── constants.js          # 游戏常量
 │   └── libs/
-│       └── weapp-adapter.js      # Minimal adapter layer
-├── res/                          # Game assets
+│       └── weapp-adapter.js      # 精简适配器层
+├── res/                          # 游戏资源
 │   ├── images/
 │   ├── sounds/
 │   └── fonts/
-└── index.html                    # Local browser preview (debug only)
+└── index.html                    # 本地浏览器预览（仅调试用）
 ```
 
-### 3.3 Config Files
+### 3.3 配置文件
 
-**`game.json`** — Mini game runtime configuration:
+**`game.json`**——小游戏运行时配置：
 
 ```json
 {
@@ -178,11 +179,11 @@ your-game/
 }
 ```
 
-- `deviceOrientation`: `"portrait"` (vertical) or `"landscape"` (horizontal)
-- `showStatusBar`: `false` for full-screen experience
-- `requiredBackgroundModes`: `["audio"]` enables background music playback
+- `deviceOrientation`：`"portrait"`（竖屏）或 `"landscape"`（横屏）
+- `showStatusBar`：设为 `false` 以获得全屏游戏体验
+- `requiredBackgroundModes`：`["audio"]` 启用后台音频播放
 
-**`project.config.json`** — DevTools configuration:
+**`project.config.json`**——开发者工具配置：
 
 ```json
 {
@@ -215,13 +216,13 @@ your-game/
 }
 ```
 
-> ⚠️ `compileType` must be `"minigame"`, NOT `"game"` or `"miniprogram"`. `libVersion` must NOT be `"game"` — use `"widelyUsed"` or a specific version like `"2.32.3"`.
+> ⚠️ `compileType` 必须是 `"minigame"`，**不能**是 `"game"` 或 `"miniprogram"`。`libVersion` **不能**填写 `"game"`——应使用 `"widelyUsed"` 或具体版本号如 `"2.32.3"`。
 
 ---
 
-## 4. The Adapter Layer
+## 4. 适配器层
 
-Create `src/libs/weapp-adapter.js`. This minimal adapter maps WeChat APIs to standard browser-style APIs that game code expects.
+创建 `src/libs/weapp-adapter.js`。这个精简适配器将微信 API 映射为游戏代码所期望的标准浏览器风格 API。
 
 ```javascript
 // ============================================================
@@ -405,7 +406,8 @@ const _localStorage = {
   },
   getItem: function(key) {
     const val = wx.getStorageSync(key);
-    return val === '' ? null : val; // Fix WeChat bug: empty string instead of null
+    // Fix WeChat bug: empty string returned instead of null for missing key
+    return val === '' ? null : val;
   },
   setItem: function(key, value) {
     wx.setStorageSync(key, String(value));
@@ -461,15 +463,15 @@ module.exports = {
 };
 ```
 
-> **Note:** The adapter above is a minimal but functional version. For production use with third-party engines (PixiJS, Three.js), you may need the full adapter from [weapp-adapter on GitHub](https://github.com/ct-source/weapp-adapter). The minimal adapter here is sufficient for pure Canvas 2D game development.
+> **注意：** 以上适配器是精简但功能完整的版本。如果要在生产环境中使用第三方引擎（PixiJS、Three.js），可能需要 [weapp-adapter on GitHub](https://github.com/ct-source/weapp-adapter) 的完整版。本教程的精简版足以满足纯 Canvas 2D 游戏开发的需求。
 
 ---
 
-## 5. Core Framework Modules
+## 5. 核心框架模块
 
-### 5.1 Screen Adapter (`src/core/ScreenAdapter.js`)
+### 5.1 屏幕适配器（`src/core/ScreenAdapter.js`）
 
-Handles device pixel ratio scaling, design resolution mapping, and safe area calculations.
+负责处理设备像素比缩放、设计分辨率映射和安全区域计算。
 
 ```javascript
 // ============================================================
@@ -542,9 +544,9 @@ class ScreenAdapter {
 module.exports = ScreenAdapter;
 ```
 
-### 5.2 Input Manager (`src/core/InputManager.js`)
+### 5.2 输入管理器（`src/core/InputManager.js`）
 
-Normalizes touch events into a clean, game-ready interface. Handles tap, swipe, and multi-touch.
+将触摸事件归一化为干净的游戏接口。支持点按、滑动和多点触控。
 
 ```javascript
 // ============================================================
@@ -655,9 +657,9 @@ class InputManager {
 module.exports = InputManager;
 ```
 
-### 5.3 Resource Loader (`src/core/ResourceLoader.js`)
+### 5.3 资源加载器（`src/core/ResourceLoader.js`）
 
-Provides a promise-based asset loading system with progress tracking.
+提供基于 Promise 的资源加载系统，支持进度追踪。
 
 ```javascript
 // ============================================================
@@ -746,9 +748,9 @@ class ResourceLoader {
 module.exports = ResourceLoader;
 ```
 
-### 5.4 Audio Manager (`src/core/AudioManager.js`)
+### 5.4 音频管理器（`src/core/AudioManager.js`）
 
-Centralized audio control with support for BGM and sound effects. Handles iOS auto-play restrictions.
+统一管理背景音乐和音效，内置 iOS 自动播放限制的解决方案。
 
 ```javascript
 // ============================================================
@@ -775,10 +777,10 @@ class AudioManager {
     const that = this;
     wx.onTouchStart(function unlock() {
       if (!that._audioUnlocked) {
-        // Play a silent sound to "unlock" audio
+        // Play a silent sound to "unlock" the audio context
         const silent = wx.createInnerAudioContext();
         silent.volume = 0.001;
-        silent.src = ''; // Some engines use a short silent mp3
+        silent.src = '';
         silent.play();
         setTimeout(function() { silent.destroy(); }, 100);
         that._audioUnlocked = true;
@@ -860,9 +862,9 @@ class AudioManager {
 module.exports = AudioManager;
 ```
 
-### 5.5 Scene Manager (`src/core/SceneManager.js`)
+### 5.5 场景管理器（`src/core/SceneManager.js`）
 
-Manages game scenes with lifecycle hooks: `onEnter`, `onUpdate`, `onRender`, `onExit`.
+管理游戏场景，提供生命周期钩子：`onEnter`、`onUpdate`、`onRender`、`onExit`。
 
 ```javascript
 // ============================================================
@@ -931,9 +933,9 @@ module.exports = SceneManager;
 
 ---
 
-## 6. The Game Engine (`src/core/Game.js`)
+## 6. 游戏引擎（`src/core/Game.js`）
 
-This is the heart of the framework — it ties everything together.
+这是框架的核心——将各个子系统串联在一起。
 
 ```javascript
 // ============================================================
@@ -1103,9 +1105,9 @@ module.exports = Game;
 
 ---
 
-## 7. Entry Point (`game.js`)
+## 7. 入口文件（`game.js`）
 
-The file WeChat loads first. It initializes the adapter, creates the game instance, wires up scenes, and starts the loop.
+微信加载的第一个文件。它初始化适配器、创建游戏实例、注册场景、启动循环。
 
 ```javascript
 // ============================================================
@@ -1162,11 +1164,11 @@ game.start();
 
 ---
 
-## 8. Scene Templates
+## 8. 场景模板
 
-### 8.1 Loading Scene (`src/scenes/LoadingScene.js`)
+### 8.1 加载场景（`src/scenes/LoadingScene.js`）
 
-Shows a progress bar while assets load, then transitions to the initial scene.
+在资源加载期间显示进度条，加载完成后跳转到初始场景。
 
 ```javascript
 // ============================================================
@@ -1227,7 +1229,7 @@ class LoadingScene {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 28px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Loading...', W / 2, H / 2 - 60);
+    ctx.fillText('资源加载中...', W / 2, H / 2 - 60);
 
     // Progress bar background
     const barW = 300;
@@ -1273,9 +1275,9 @@ class LoadingScene {
 module.exports = LoadingScene;
 ```
 
-### 8.2 Menu Scene (`src/scenes/MenuScene.js`)
+### 8.2 菜单场景（`src/scenes/MenuScene.js`）
 
-Simple main menu with tap-to-start.
+简单的主菜单，点击按钮开始游戏。
 
 ```javascript
 // ============================================================
@@ -1338,12 +1340,12 @@ class MenuScene {
     ctx.font = 'bold 48px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('MY MINI GAME', W / 2, H * 0.35);
+    ctx.fillText('我的小游戏', W / 2, H * 0.35);
 
     // Subtitle
     ctx.font = '18px sans-serif';
     ctx.fillStyle = '#aaaaaa';
-    ctx.fillText('Tap to Start', W / 2, H * 0.45);
+    ctx.fillText('点击开始游戏', W / 2, H * 0.45);
 
     // Start button
     const btn = this._startBtn;
@@ -1359,7 +1361,7 @@ class MenuScene {
     // Button text
     ctx.fillStyle = '#ffffff';
     ctx.font = '24px sans-serif';
-    ctx.fillText('Start Game', btn.x + btn.w / 2, btn.y + btn.h / 2);
+    ctx.fillText('开始游戏', btn.x + btn.w / 2, btn.y + btn.h / 2);
   }
 
   _roundRect(ctx, x, y, w, h, r) {
@@ -1386,9 +1388,9 @@ class MenuScene {
 module.exports = MenuScene;
 ```
 
-### 8.3 Game Scene (`src/scenes/GameScene.js`)
+### 8.3 游戏场景（`src/scenes/GameScene.js`）
 
-This is where your actual game logic goes. The template below shows a minimal working game with a moving player and touch controls.
+这是你实际游戏逻辑所在的位置。以下模板展示了一个可运行的极小游戏——一个可通过触屏控制移动的玩家角色。
 
 ```javascript
 // ============================================================
@@ -1450,9 +1452,7 @@ class GameScene {
       return;
     }
 
-    // Move player toward tap position
-    this.player.vx = 0;
-    this.player.vy = 0;
+    // Tap to score
     this.score += 1;
     this.game.audio.playSFX('res/sounds/jump.mp3');
   }
@@ -1512,11 +1512,11 @@ class GameScene {
     ctx.font = 'bold 24px sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('Score: ' + this.score, 20, 20);
+    ctx.fillText('分数: ' + this.score, 20, 20);
 
     // Draw timer (top-center)
     ctx.textAlign = 'center';
-    ctx.fillText('Time: ' + Math.floor(this.timer) + 's', W / 2, 20);
+    ctx.fillText('时间: ' + Math.floor(this.timer) + 's', W / 2, 20);
 
     // Draw pause button (top-right)
     const btn = this._pauseBtn;
@@ -1532,9 +1532,9 @@ class GameScene {
     ctx.font = '14px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Tap to score | Swipe to move | ← Pause to return', W / 2, H - 20);
+    ctx.fillText('点击得分 | 滑动移动 | 按 ⏸ 返回菜单', W / 2, H - 20);
 
-    // --- YOUR GAME RENDERING GOES HERE ---
+    // --- 你的游戏渲染逻辑写在这里 ---
     // Draw entities, HUD, effects, maps, etc.
   }
 
@@ -1561,7 +1561,7 @@ module.exports = GameScene;
 
 ---
 
-## 9. Utility Helpers
+## 9. 工具函数
 
 ### 9.1 `src/utils/utils.js`
 
@@ -1611,7 +1611,7 @@ function rectsCollide(r1, r2) {
 /** Convert degrees to radians */
 function degToRad(deg) { return deg * (Math.PI / 180); }
 
-/** Draw a sprite from an image (supports sprite [sx,sy,sw,sh]) */
+/** Draw a sprite from an image (supports sprite sheet sub-rects) */
 function drawSprite(ctx, image, dx, dy, dw, dh, sx, sy, sw, sh) {
   if (sx !== undefined && sy !== undefined && sw !== undefined && sh !== undefined) {
     ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -1664,9 +1664,9 @@ module.exports = {
 
 ---
 
-## 10. Local Browser Debug (`index.html`)
+## 10. 本地浏览器调试（`index.html`）
 
-For quick iteration without the WeChat DevTools simulator:
+通过浏览器快速迭代，无需每次都在微信开发者工具模拟器中调试：
 
 ```html
 <!DOCTYPE html>
@@ -1772,9 +1772,6 @@ For quick iteration without the WeChat DevTools simulator:
       wx.createCanvas = _origCreateCanvas;
       return window._wechatCanvas || c;
     };
-
-    // Dynamically load game modules
-    // Use script tags or a bundler in production
   </script>
   <script src="src/libs/weapp-adapter.js"></script>
   <script src="src/core/ScreenAdapter.js"></script>
@@ -1793,12 +1790,12 @@ For quick iteration without the WeChat DevTools simulator:
 
 ---
 
-## 11. From Framework to Game: What You Do Next
+## 11. 从框架到游戏：接下来做什么
 
-At this point you have a **fully functional framework**. All WeChat-specific concerns (adapter, lifecycle, canvas setup, touch input, audio, screen adaptation) are handled. Here's what remains:
+此时你已经拥有了一个**功能完整的框架**。所有微信特有的问题（适配器、生命周期、Canvas 初始化、触摸输入、音频、屏幕适配）都已处理完毕。接下来你需要做的是：
 
-### Phase 1: Add Your Assets
-Place images in `res/images/`, sounds in `res/sounds/`, and update the manifest in `game.js`:
+### 阶段一：添加游戏资源
+将图片放入 `res/images/`，音效放入 `res/sounds/`，然后更新 `game.js` 中的资源清单：
 
 ```javascript
 images: {
@@ -1810,20 +1807,20 @@ images: {
 },
 ```
 
-### Phase 2: Implement Game Logic in `GameScene.js`
+### 阶段二：在 `GameScene.js` 中实现游戏逻辑
 
-The `onUpdate(dt)` and `onRender(ctx)` methods are your game loop. Fill them with:
+`onUpdate(dt)` 和 `onRender(ctx)` 方法就是你的游戏循环。请在其中填入以下内容：
 
-- **Movement:** Update entity positions based on velocity/acceleration
-- **Collision:** Check `rectsCollide()` / `circlesCollide()` between entities
-- **Spawning:** Create enemies/items on timers
-- **Scoring:** Increment score on events
-- **Rendering:** Draw sprites, particles, HUD elements
-- **State:** Handle win/lose conditions, switch to `gameover` scene
+- **移动：** 根据速度和加速度更新实体位置
+- **碰撞检测：** 使用 `rectsCollide()` / `circlesCollide()` 判断实体间碰撞
+- **生成逻辑：** 按计时器生成敌人/道具
+- **计分：** 在事件发生时更新分数
+- **渲染：** 绘制精灵、粒子、HUD 元素
+- **状态管理：** 处理胜利/失败条件，切换到 `gameover` 场景
 
-### Phase 3: Add More Scenes
+### 阶段三：添加更多场景
 
-Register new scenes in `game.js`:
+在 `game.js` 中注册新场景：
 
 ```javascript
 scenes: {
@@ -1835,46 +1832,48 @@ scenes: {
 },
 ```
 
-### Phase 4: Persistent Data
+### 阶段四：持久化数据
 
-Use the localStorage adapter to save high scores and settings:
+使用 localStorage 适配器保存最高分和设置：
 
 ```javascript
-// Save
+// 保存
 localStorage.setItem('highScore', String(this.score));
 
-// Load
+// 读取
 const highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
 ```
 
-### Phase 5: Network (Optional)
+### 阶段五：网络通信（可选）
 
-Use `wx.request` directly for leaderboards, or our XMLHttpRequest adapter for standard APIs:
+对于排行榜，可以直接使用 `wx.request`，也可以使用我们的 XMLHttpRequest 适配器以标准方式调用 API：
 
 ```javascript
-// WeChat native
+// 微信原生方式
 wx.request({
   url: 'https://api.example.com/leaderboard',
   method: 'GET',
   success: (res) => { console.log(res.data); }
 });
 
-// Or via adapter (standard XHR style)
+// 或通过适配器（标准 XHR 风格）
 const xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://api.example.com/leaderboard');
 xhr.onload = () => { console.log(xhr.response); };
 xhr.send();
 ```
 
-### Phase 6: Monetization (Optional)
+### 阶段六：变现接入（可选）
 
-Once your game is working, add ads for revenue. Insert these in `GameScene`:
+游戏完成后，可以接入广告获取收益。在 `GameScene` 中添加以下代码：
 
 ```javascript
-// Initialize ads (do this in onEnter)
+// Initialize ad (call in onEnter)
+// 初始化广告（在 onEnter 中调用）
 this._videoAd = wx.createRewardedVideoAd({ adUnitId: 'adunit-xxxxxxxxxx' });
 
 // Show rewarded video (e.g., revive player)
+// 展示激励视频（例如：复活角色）
 showRewardedAd() {
   const ad = this._videoAd;
   ad.show().catch(() => {
@@ -1883,6 +1882,7 @@ showRewardedAd() {
   ad.onClose((res) => {
     if (res && res.isEnded) {
       // Player watched full ad → grant reward
+      // 用户看完完整广告 → 发放奖励
       this.revivePlayer();
     }
   });
@@ -1891,73 +1891,77 @@ showRewardedAd() {
 
 ---
 
-## 12. Testing & Deployment
+## 12. 测试与部署
 
-### 12.1 Local Testing
-1. Open project in WeChat DevTools
-2. Use the simulator for quick iteration
-3. Click **Preview** to generate a QR code → scan with WeChat on your phone for real device testing
+### 12.1 本地测试
+1. 在微信开发者工具中打开项目
+2. 使用模拟器快速迭代
+3. 点击 **预览** 生成二维码 → 用手机微信扫码进行真机测试
 
-### 12.2 Performance Checklist
-- **60 FPS target:** Use `Date.now()` delta time (already handled in `Game.js`)
-- **Memory:** WeChat mini games have ~128MB memory cap; monitor via `performance.memory.usedJSHeapSize` in devtools
-- **Texture sizes:** Use power-of-two dimensions (256×256, 512×512) for better GPU efficiency
-- **Sprite sheets:** Combine small images into atlas sheets to reduce draw calls
+### 12.2 性能检查清单
 
-### 12.3 Upload & Submit
-1. In WeChat DevTools, click **Upload**
-2. Set version number and description
-3. Go to [mp.weixin.qq.com](https://mp.weixin.qq.com/) → Development Management
-4. Submit the version for review
+| 项目 | 说明 |
+|------|------|
+| **60 FPS 目标** | 使用 `Date.now()` delta time（已在 `Game.js` 中处理） |
+| **内存** | 微信小游戏内存上限约 128MB；在 DevTools 中用 `performance.memory.usedJSHeapSize` 监控 |
+| **纹理尺寸** | 使用 2 的幂次方尺寸（256×256、512×512），以获得更好的 GPU 性能 |
+| **图集合批** | 将小图片合并为 atlas 图集以减少 draw calls |
 
-### 12.4 Common Pitfalls
-| Issue | Solution |
-|-------|----------|
-| "global is not defined" | Load `weapp-adapter.js` before any other module |
-| Canvas uses "game" `libVersion` | Change to `"widelyUsed"` or specific version like `"2.32.3"` |
-| Audio doesn't play on iOS | First audio must be triggered by user touch (handled by `AudioManager._tryUnlock`) |
-| Images fail to load | Use relative paths; verify file names match exactly |
-| `wx.request` blocked | Add API domain to request allowlist in MP backend |
-| Stuttering on low-end devices | Reduce particle count, sprite size; check `benchmarkLevel` from `wx.getSystemInfoSync()` |
+### 12.3 上传与提审
+1. 在微信开发者工具中点击 **上传**
+2. 设置版本号和描述
+3. 前往 [mp.weixin.qq.com](https://mp.weixin.qq.com/) → 开发管理
+4. 提交版本进行审核
 
----
+### 12.4 常见问题排查
 
-## 13. Reference: Key WeChat APIs at a Glance
-
-| Category | API | Purpose |
-|----------|-----|---------|
-| **Canvas** | `wx.createCanvas()` | Create on-screen or off-screen canvas |
-| **Image** | `wx.createImage()` | Load and decode images |
-| **Audio** | `wx.createInnerAudioContext()` | Play audio (BGM or SFX) |
-| **Timer** | `wx.requestAnimationFrame()` | Game loop driver (prefer this over `setInterval`) |
-| **Input** | `wx.onTouchStart/Move/End()` | Touch events |
-| **Storage** | `wx.getStorageSync()` / `wx.setStorageSync()` | Persistent key-value storage |
-| **Network** | `wx.request()` | HTTP requests |
-| **Socket** | `wx.connectSocket()` | WebSocket connections |
-| **System** | `wx.getSystemInfoSync()` | Device info (screen, platform, performance tier) |
-| **Lifecycle** | `wx.onShow()` / `wx.onHide()` | Foreground/background transitions |
-| **User** | `wx.login()` / `wx.getUserInfo()` | Authentication |
-| **Share** | `wx.shareAppMessage()` | Share card generation |
-| **Ad** | `wx.createRewardedVideoAd()` | Monetization — rewarded video |
-| **Ad** | `wx.createInterstitialAd()` | Monetization — interstitial |
-| **Open Data** | `wx.getOpenDataContext()` | Friend leaderboards (open data domain) |
+| 问题 | 解决方法 |
+|------|----------|
+| "global is not defined" | 确保 `weapp-adapter.js` 在任何其他模块之前加载 |
+| Canvas 使用 "game" 作为 `libVersion` | 改为 `"widelyUsed"` 或具体版本号如 `"2.32.3"` |
+| iOS 上音频无法播放 | 首次音频必须由用户触摸事件触发（`AudioManager._tryUnlock` 已处理此问题） |
+| 图片加载失败 | 使用相对路径；确认文件名大小写完全一致 |
+| `wx.request` 被拦截 | 在小程序后台将 API 域名添加到 request 合法域名白名单 |
+| 低端设备卡顿 | 减少粒子数量、精灵尺寸；通过 `wx.getSystemInfoSync().benchmarkLevel` 判断设备性能并动态调整画质 |
 
 ---
 
-## 14. Conclusion
+## 13. 关键微信 API 速查表
 
-You now have:
-
-1. A **production-ready project skeleton** with all WeChat integration wired up
-2. A **modular framework** — `Game`, `SceneManager`, `InputManager`, `AudioManager`, `ResourceLoader`, `ScreenAdapter`
-3. A **working example** — Loading → Menu → Game scene flow with touch controls and audio
-4. A **local debugging setup** — `index.html` with WeChat API mocks for browser development
-5. A **clear path** to add your game logic, assets, and monetization
-
-From here, you never need to touch WeChat framework code again. Open `GameScene.js`, write your `onUpdate()` and `onRender()`, and build your game.
+| 分类 | API | 用途 |
+|------|-----|------|
+| **Canvas** | `wx.createCanvas()` | 创建上屏或离屏 Canvas |
+| **图片** | `wx.createImage()` | 加载并解码图片 |
+| **音频** | `wx.createInnerAudioContext()` | 播放音频（BGM 或 SFX） |
+| **定时** | `wx.requestAnimationFrame()` | 游戏循环驱动（优先使用，而非 `setInterval`） |
+| **输入** | `wx.onTouchStart/Move/End()` | 触摸事件 |
+| **存储** | `wx.getStorageSync()` / `wx.setStorageSync()` | 持久化键值存储 |
+| **网络** | `wx.request()` | HTTP 请求 |
+| **WebSocket** | `wx.connectSocket()` | WebSocket 连接 |
+| **系统** | `wx.getSystemInfoSync()` | 设备信息（屏幕、平台、性能等级） |
+| **生命周期** | `wx.onShow()` / `wx.onHide()` | 前台/后台切换 |
+| **用户** | `wx.login()` / `wx.getUserInfo()` | 用户认证 |
+| **分享** | `wx.shareAppMessage()` | 生成分享卡片 |
+| **广告** | `wx.createRewardedVideoAd()` | 变现——激励视频广告 |
+| **广告** | `wx.createInterstitialAd()` | 变现——插屏广告 |
+| **开放数据域** | `wx.getOpenDataContext()` | 好友排行榜（开放数据域） |
 
 ---
 
-> **Knowledge cutoff:** 2025-06. WeChat Mini Game APIs and base library versions referenced in this tutorial were current as of mid-2025. Always consult the [official documentation](https://developers.weixin.qq.com/minigame/dev/guide/) for the latest API changes and deprecation notices.
+## 14. 总结
 
-> **Sources:** [WeChat Mini Game Official Guide](https://developers.weixin.qq.com/minigame/dev/guide/), [weapp-adapter GitHub](https://github.com/ct-source/weapp-adapter), WeChat DevTools documentation.
+你现在已经拥有：
+
+1. 一个**可直接用于生产的项目骨架**，所有微信平台集成代码均已就绪
+2. 一个**模块化框架**——`Game`、`SceneManager`、`InputManager`、`AudioManager`、`ResourceLoader`、`ScreenAdapter`
+3. 一个**可运行的示例**——加载 → 菜单 → 游戏场景的完整流程，包含触摸控制和音频
+4. 一套**本地调试方案**——`index.html` 内置微信 API Mock，可在浏览器中开发
+5. 一条**清晰的路径**——添加游戏逻辑、资源、变现功能
+
+从此以后，你再也不需要碰任何微信框架接入代码。打开 `GameScene.js`，编写你的 `onUpdate()` 和 `onRender()`，然后专注于做游戏。
+
+---
+
+> **知识截止日期：** 2025-06。本教程中引用的微信小游戏 API 和基础库版本截至 2025 年中有效。请始终查阅 [官方文档](https://developers.weixin.qq.com/minigame/dev/guide/) 获取最新的 API 变更和废弃通知。
+
+> **参考来源：** [微信小游戏官方开发指南](https://developers.weixin.qq.com/minigame/dev/guide/)、[weapp-adapter GitHub](https://github.com/ct-source/weapp-adapter)、微信开发者工具文档。

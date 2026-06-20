@@ -8,7 +8,7 @@ This is a personal technology blog/knowledge base written entirely in Markdown. 
 
 ## Structure
 
-- Each topic area has its own directory: `AI/`, `Git/`, `Golang/`, `Linux/`, `PHP/`
+- Each topic area has its own directory: `AI/`, `Git/`, `Golang/`, `Linux/`, `MiniGame/`, `PHP/`
 - `README.md` is the sole index/table of contents for all documents
 - `uploads/` contains images referenced by blog posts
 
@@ -34,12 +34,20 @@ This is a personal technology blog/knowledge base written entirely in Markdown. 
 Each blog post should follow this structure:
 
 1. H1 title (English, descriptive)
-2. One-line summary
+2. One-line summary (Chinese)
 3. `---` separator
 4. Structured sections with H2 headings
 5. Code blocks with language hints (e.g., ```bash, ```yaml, ```ruby)
 6. Use tables for structured comparisons
 7. Use blockquotes (`>`) for important notes
+
+### Language Rules (Mandatory)
+
+- **File names & H1 titles:** English only
+- **Document body content:** Chinese only (all explanations, analysis, tutorials, instructions)
+- **Code comments:** English only
+- **Code/config snippets, frontmatter, CLI commands:** English original form only
+- **README index entries:** English only
 
 ### Image Assets
 
@@ -61,9 +69,14 @@ When a document benefits from a flowchart or diagram, use Mermaid syntax. All Me
 
 每次执行"整理/新增文档"任务时，直接照以下步骤做即可复用：
 
-1. **选目录与文件名**：放入合适的主题目录（`AI/`、`Git/`、`Golang/`、`Linux/`、`PHP/`），文件名用英文 kebab-case，格式 `topic-purpose.md`。
-2. **文档骨架**：H1 标题（英文、描述性）→ 一行摘要 → `---` 分隔线 → H2 分节；必要时摘要下加多行 blockquote 补充背景。
-3. **语言约定**：正文语言依内容而定（教程类常用中文，运维类常用英文）；**代码/配置片段、frontmatter 字段名、文件名、CLI 命令一律保持英文原样**；**README 索引条目固定用英文**。
+1. **选目录与文件名**：放入合适的主题目录（`AI/`、`Git/`、`Golang/`、`Linux/`、`MiniGame/`、`PHP/`），文件名用英文 kebab-case，格式 `topic-purpose.md`。
+2. **文档骨架**：H1 标题（英文、描述性）→ 一行中文摘要 → `---` 分隔线 → H2 分节；必要时摘要下加多行 blockquote 补充背景。
+3. **语言约定（强制规则）**：
+   - **文档文件名和标题**：统一使用**英文**。
+   - **文档正文内容**：所有文档的正文内容、方案分析、操作说明，**一律使用中文**书写。
+   - **代码注释**：代码块内的注释，始终使用**英文**书写。
+   - **代码/配置片段、frontmatter 字段名、CLI 命令**：一律保持英文原样。
+   - **README 索引条目**：固定用英文。
 4. **表达元素**：结构化对比用表格；重要提示用 blockquote（`>`）；代码块必须带语言标识（```bash / ```yaml / ```json / ```toml / ```mermaid 等）。
 5. **流程图**：需要时用 Mermaid，遵守上文「Mermaid Diagrams」规则（`<br>` 换行、禁实验语法、标准 ```mermaid 代码块）。
 6. **时效与诚信**：涉及版本/特性/价格等时效性内容，必须核查官方源，并在文末标注「知识截止 YYYY-MM-DD」；无法核实的点显式标注「未核实」，**不臆造**。
