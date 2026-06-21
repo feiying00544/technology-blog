@@ -2,9 +2,9 @@
 
 一份从零开始构建微信小游戏可复用框架的完整教程——完成本教程后，你可以直接进入游戏逻辑开发，无需再关心任何微信平台本身的框架接入代码。
 
-> **目标读者：** 具备基础 JavaScript 知识、零小游戏开发经验的开发者。
+> **目标读者：** 具备基础 JavaScript 知识、零小游戏开发经验的开发者（若你来自 Java 等强类型后端背景，请先读 [1.6 写给 Java 开发者的 JS 注意点](#16-写给-java-开发者的-js-注意点)）。
 > **产出物：** 一个可直接用于生产环境的项目骨架，包含游戏循环、Canvas 渲染、触摸输入、音频管理、资源加载、场景管理和屏幕适配——全部开箱即用，只需填充游戏内容即可。
-> **开发环境：** macOS 14 (Sonoma) + Intel MacBook Pro + 微信开发者工具。
+> **开发环境：** macOS 14 (Sonoma) + Intel MacBook Pro，或 Windows 11 + 微信开发者工具。本教程对两个平台均给出步骤。
 
 ---
 
@@ -12,16 +12,21 @@
 
 ### 1.1 开发环境
 
-本教程基于 **macOS 14 (Sonoma) + Intel MacBook Pro** 编写。所有路径和命令均遵循 macOS 约定。
+本教程同时覆盖 **macOS** 与 **Windows 11** 两套环境。框架代码与游戏逻辑完全跨平台，差异只集中在第 1 章的「下载哪个安装包、如何解除系统拦截、Node.js 怎么装、项目路径怎么写」这几点。
 
-| 项目 | 规格 |
-|------|------|
-| **硬件** | MacBook Pro，Intel CPU |
-| **操作系统** | macOS 14 (Sonoma) |
-| **IDE** | 微信开发者工具（macOS x64 版） |
-| **代码编辑器** | VS Code（推荐，用于语法高亮和终端集成） |
+| 项目 | macOS | Windows |
+|------|-------|---------|
+| **硬件** | MacBook Pro（Intel 或 Apple Silicon） | 任意 x64 PC |
+| **操作系统** | macOS 14 (Sonoma) 及以上 | Windows 11（Windows 10 亦可） |
+| **IDE** | 微信开发者工具（macOS 版） | 微信开发者工具（Windows 64 版） |
+| **代码编辑器** | VS Code（推荐） | VS Code（推荐） |
 
-> 💡 如果你使用 macOS 15 (Sequoia)，步骤完全一致。Apple Silicon (M1/M2/M3) Mac 应下载 ARM64 版本的微信开发者工具。
+> 💡 **关于微信开发者工具的版本选择：**
+> - **Intel Mac（如 2018 款 MacBook Pro）** → 下载 **macOS x64** 版本。
+> - **Apple Silicon Mac（M1/M2/M3）** → 下载 **macOS ARM64** 版本。
+> - **Windows 11** → 下载 **Windows 64** 版本。
+>
+> 💡 在 2018 款 Intel MacBook Pro 上，开发者工具的模拟器可能偏慢；建议尽早用「预览 → 手机扫码」在真机上测试，体验更顺畅（见 [13.1](#131-本地测试)）。
 
 ### 1.2 账号注册
 
@@ -29,38 +34,68 @@
 2. 注册完成后，进入 **开发 → 开发设置** 获取你的 **AppID**（格式：`wxXXXXXXXXXXXXXXXX`）。
 3. （可选但推荐）在 **成员管理** 中将自己添加为开发者。
 
-### 1.3 微信开发者工具安装（macOS）
+### 1.3 微信开发者工具安装
 
-1. 从 [官方下载页面](https://developers.weixin.qq.com/minigame/dev/devtools/download.html) 下载 **macOS x64** 版本。
+无论哪个平台，安装包都来自同一个 [官方下载页面](https://developers.weixin.qq.com/minigame/dev/devtools/download.html)——按 [1.1](#11-开发环境) 的说明选对应版本即可。
+
+#### macOS（含 2018 款 Intel MacBook Pro）
+
+1. 下载 **macOS x64** 版本（Apple Silicon 则下 ARM64）。
 2. 打开下载的 `.dmg` 文件，将 `wechatwebdevtools.app` 拖入 `/Applications`。
 3. 首次启动时，macOS Gatekeeper 可能会阻止该应用：
    ```
    "wechatwebdevtools.app" cannot be opened because it is from an unidentified developer.
    ```
-   **修复方法：** 前往 **系统设置 → 隐私与安全性**，在拦截提示旁点击 **"仍要打开"**。或者通过终端运行：
+   **推荐修复方法：** 前往 **系统设置 → 隐私与安全性**，向下滚动找到被拦截的提示，点击旁边的 **"仍要打开"**。这是最安全、最稳妥的方式。
    ```bash
-   sudo spctl --master-disable    # 允许任何来源的应用（谨慎使用）
-   # 或者一次性绕过：
+   # 仅当上述方法无效时，对该应用单独移除隔离属性（只影响这一个 App，安全）：
    xattr -cr /Applications/wechatwebdevtools.app
    ```
-4. 启动开发者工具。用微信扫码登录。
+   > ⚠️ 切勿使用 `sudo spctl --master-disable` 全局关闭 Gatekeeper——它会让系统接受任何来源的应用，存在安全风险，且在较新的 macOS 上已被移除/失效。只针对单个 App 用 `xattr -cr` 即可。
+
+#### Windows 11
+
+1. 下载 **Windows 64** 版本（`.exe` 安装包）。
+2. 双击 `.exe`，按向导完成安装（默认安装路径即可）。
+3. 首次运行若被 **Microsoft Defender SmartScreen** 拦截，提示"Windows 已保护你的电脑"：点击 **"更多信息" → "仍要运行"** 即可。
+   > ⚠️ Windows 上**没有** Gatekeeper，也**不需要** `xattr` / `spctl` 这类命令——那是 macOS 专属，在 Windows 里执行无意义。
+
+#### 共同步骤（两平台一致）
+
+4. 启动开发者工具，用微信**扫码登录**。
 5. 创建新项目：
    - 项目类型选择 **小游戏**
-   - 选择项目目录（建议：`~/Documents/Projects/你的游戏名称/`）
-   - 填入你的 AppID（或选择"测试号"仅用于本地开发）
-   - 选择 **纯 GL 模式** 模板
+   - 选择项目目录（见下方路径建议）
+   - 填入你的 AppID（或点击"测试号"按钮，仅用于本地开发）
+   - 模板选择 **空白模板（不使用云开发）**——即纯 JavaScript 空项目，无引擎负担、完全可控。我们随后会用本教程的骨架替换掉自动生成的示例代码。
 
-> ⚠️ **重要：** 项目路径中不要包含中文、空格或特殊字符。请使用纯 ASCII 路径，如 `~/Documents/Projects/minigame/`。
+> ⚠️ **重要：项目路径不要包含中文、空格或特殊字符（两平台通用）。**
+> - macOS 示例：`~/Documents/Projects/minigame/`
+> - Windows 示例：`D:\projects\minigame\`（Windows 没有 `~` 家目录写法，请用盘符绝对路径；注意分隔符是反斜杠 `\`）
 
 ### 1.4 Node.js（可选但推荐）
 
-如果你计划使用打包工具（webpack / rollup）或游戏引擎 CLI（Cocos Creator、LayaAir），需要安装 Node.js：
+如果你计划使用打包工具（esbuild / webpack / rollup，例如第 10 节的浏览器调试）或游戏引擎 CLI（Cocos Creator、LayaAir），需要安装 Node.js。**仅在微信开发者工具内开发本框架则无需 Node.js**。
+
+**macOS（通过 Homebrew，推荐）：**
 
 ```bash
-# 通过 Homebrew 安装（推荐）
 brew install node@20
+```
 
-# 验证安装
+**Windows 11（任选其一）：**
+
+```powershell
+# 方式一：从官网 https://nodejs.org 下载 LTS 安装包（.msi），双击安装
+# 方式二：用 winget（Win11 自带）
+winget install OpenJS.NodeJS.LTS
+# 方式三：用 Chocolatey
+choco install nodejs-lts
+```
+
+安装后**两平台通用**地验证（在 macOS 终端或 Windows PowerShell / cmd 中均可）：
+
+```bash
 node -v   # ≥ 20.x
 npm -v    # ≥ 10.x
 ```
@@ -71,6 +106,20 @@ npm -v    # ≥ 10.x
 - ES6+ JavaScript（模块、类、箭头函数、Promise）
 - HTML5 Canvas 2D 基础（context、绘制、变换）
 - 游戏循环的基本概念（`requestAnimationFrame`）
+
+### 1.6 写给 Java 开发者的 JS 注意点
+
+如果你有丰富的 Java 经验、JS 经验较少，本框架代码里有 5 个**高频且对 Java 直觉反常**的写法，提前了解可避免大量困惑：
+
+| JS 写法 | 在 Java 里的对照 / 为什么这样写 |
+|---------|------------------------------|
+| `const that = this;` | Java 的 `this` 在方法内永远稳定；JS 里 `this` 取决于**函数被怎样调用**，在回调（如 `forEach`、定时器）内部会丢失。先把它存进 `that`，回调里就能继续访问到对象本身。 |
+| `this._onTap = this._onTap.bind(this)` | Java 方法引用（`this::onTap`）自带绑定；JS 不会。把方法作为回调传出去前必须 `bind(this)`，否则回调触发时 `this` 会变成 `undefined`，访问 `this.xxx` 直接报错。 |
+| `require(...)` / `module.exports = ...` | 相当于 Java 的 `import` 与"导出"。CommonJS 模块里：`module.exports` 决定这个文件对外暴露什么；`require('./X')` 拿到的就是对方 `module.exports` 的值。 |
+| `_bgm`、`_onTap` 下划线命名 | Java 有 `private` 关键字真正限制访问；JS 的下划线**只是约定**，表示"这是内部成员，请勿外部调用"，语言层面**并不**阻止你访问。 |
+| 无类型声明、`class` 里无 `private/final` | JS 是动态类型，变量不写类型；`class` 语法看着像 Java，但没有访问修饰符、没有重载、字段默认全是公开的。把它当成"带语法糖的对象"即可。 |
+
+> 💡 Canvas 绘图模型也和 Java2D（`Graphics2D`）思路接近：都是"取得一个绘图上下文 `ctx`，调用 `fillRect`/`arc`/`fillText` 往上画"，区别在于游戏每帧都要**先清屏再重画**（本框架已在 `Game._render()` 里统一处理）。
 
 ---
 
@@ -85,12 +134,14 @@ npm -v    # ≥ 10.x
 | `document.createElement('canvas')` | `wx.createCanvas()` |
 | `new Image()` | `wx.createImage()` |
 | `new Audio()` | `wx.createInnerAudioContext()` |
-| `window.requestAnimationFrame` | `canvas.requestAnimationFrame()` 或 `wx.requestAnimationFrame()` |
+| `window.requestAnimationFrame` | 全局 `requestAnimationFrame()`（无 `wx.` 前缀） |
 | `localStorage.getItem()` | `wx.getStorageSync()` |
 | `XMLHttpRequest` / `fetch` | `wx.request()` |
 | `addEventListener('touchstart')` | `wx.onTouchStart()` |
 
 **核心认知：** 微信小游戏运行时没有 DOM、没有 `window`、没有 `document`。适配器层的作用就是抹平这些差异。
+
+> ⚠️ **特别注意：微信小游戏没有 `wx.requestAnimationFrame`。** 官方只提供**全局**的 `requestAnimationFrame()` / `cancelAnimationFrame()`（无 `wx.` 前缀），由 `wx.createCanvas()` 创建主 Canvas 后注入到全局。这是网上大量过时教程的高频错误——调用 `wx.requestAnimationFrame` 会抛 `wx.requestAnimationFrame is not a function`，导致游戏循环根本跑不起来。本教程的适配器直接复用全局 `requestAnimationFrame`，**切勿**用一个包装它的函数去覆盖它。
 
 ### 2.2 生命周期
 
@@ -124,7 +175,24 @@ wx.onHide()  ← 游戏进入后台时触发（务必在此暂停游戏！）
 
 打开微信开发者工具 → 新建项目 → 选择 **小游戏**（非小程序）。
 
-模板选择：**纯 GL 模式**（推荐——无引擎负担，完全掌控）。
+模板选择：**空白模板（不使用云开发）**（推荐——纯 JavaScript 空项目，无引擎负担，完全掌控）。
+
+创建后，开发者工具会自动生成几个文件，典型如下：
+
+```
+game.js                # 入口文件（自动生成，内含示例代码）
+game.json              # 运行时配置（自动生成）
+project.config.json    # 项目配置（自动生成，appid 等字段已自动填好）
+```
+
+接下来按这个原则改造成本教程的骨架（对照 [3.2](#32-项目结构) 的目录树）：
+
+1. **`game.js`**：**整段替换**为本教程 [第 7 节](#7-入口文件gamejs) 的内容（删掉自动生成的示例代码）。
+2. **`game.json`**：用 [3.3](#33-配置文件) 的内容**整段替换**。
+3. **`project.config.json`**：**只改不覆盖**——`appid`、`projectname` 是工具按你创建项目时的选择自动写好的，**不要手敲覆盖**；只需对照 [3.3](#33-配置文件) 补齐 `setting`、`compileType` 等字段即可。
+4. **新建目录与文件**：`src/core/`、`src/scenes/`、`src/utils/`、`src/libs/`、`res/images/`、`res/sounds/` 这些目录**需要你手动创建**（开发者工具左侧资源管理器右键即可新建文件夹/文件），再把第 4～9 节的各 `.js` 逐个放进对应位置。
+
+> 💡 来自 Java/IDEA 的习惯：这里没有 Maven/Gradle 那样的脚手架命令，目录结构是手动搭的。建好后开发者工具会自动编译，保存即热更新。
 
 ### 3.2 项目结构
 
@@ -165,7 +233,7 @@ your-game/
 
 ```json
 {
-  "deviceOrientation": "landscape",
+  "deviceOrientation": "portrait",
   "showStatusBar": false,
   "networkTimeout": {
     "request": 5000,
@@ -173,15 +241,14 @@ your-game/
     "uploadFile": 10000,
     "downloadFile": 10000
   },
-  "workers": "workers",
-  "requiredBackgroundModes": ["audio"],
   "subpackages": []
 }
 ```
 
-- `deviceOrientation`：`"portrait"`（竖屏）或 `"landscape"`（横屏）
+- `deviceOrientation`：`"portrait"`（竖屏）或 `"landscape"`（横屏）。本教程的设计分辨率（750×1334）和所有场景均为**竖屏**，因此这里必须填 `"portrait"`，与代码保持一致。
 - `showStatusBar`：设为 `false` 以获得全屏游戏体验
-- `requiredBackgroundModes`：`["audio"]` 启用后台音频播放
+
+> ⚠️ 不要凭空添加 `"workers": "workers"`——该字段仅在项目里**确实存在** `workers/` 多线程目录时才填写，否则微信会因找不到对应目录而报错。本框架不使用 Worker，故省略此字段。同理，`requiredBackgroundModes: ["audio"]` 仅用于**需要切到后台仍持续播放音频**的场景（如音乐类 App）；普通游戏切后台应暂停音频，因此这里也不需要它。
 
 **`project.config.json`**——开发者工具配置：
 
@@ -233,20 +300,28 @@ your-game/
 // ============================================================
 
 // --- System info ---
+// 注意：wx.getSystemInfoSync 在新基础库中已标记为「不推荐」，但仍可正常使用；
+// 如需更细粒度可改用 wx.getWindowInfo() / wx.getDeviceInfo() / wx.getAppBaseInfo()。
 const systemInfo = wx.getSystemInfoSync();
+
+// --- 捕获真正的全局 requestAnimationFrame ---
+// 微信小游戏没有 wx.requestAnimationFrame，只有全局 requestAnimationFrame。
+// 必须先把它存下来，后面注入全局时才不会用包装函数把它覆盖成死循环/未定义。
+const _raf = requestAnimationFrame;
+const _caf = cancelAnimationFrame;
 
 // --- Canvas ---
 const canvas = wx.createCanvas();
-canvas.requestAnimationFrame = function(cb) { return requestAnimationFrame(cb); };
-canvas.cancelAnimationFrame = function(id) { cancelAnimationFrame(id); };
+canvas.requestAnimationFrame = function(cb) { return _raf(cb); };
+canvas.cancelAnimationFrame = function(id) { _caf(id); };
 
 // --- Window simulation ---
 const _window = {
   innerWidth: systemInfo.windowWidth,
   innerHeight: systemInfo.windowHeight,
   devicePixelRatio: systemInfo.pixelRatio,
-  requestAnimationFrame: function(cb) { return wx.requestAnimationFrame(cb); },
-  cancelAnimationFrame: function(id) { wx.cancelAnimationFrame(id); },
+  requestAnimationFrame: function(cb) { return _raf(cb); },
+  cancelAnimationFrame: function(id) { _caf(id); },
   performance: { now: () => Date.now() },
   location: { href: '', protocol: 'https:', host: '' },
   navigator: {
@@ -448,8 +523,10 @@ globalThis.WebSocket = _WebSocket;
 globalThis.localStorage = _localStorage;
 globalThis.navigator = _window.navigator;
 globalThis.location = _window.location;
-globalThis.requestAnimationFrame = _window.requestAnimationFrame;
-globalThis.cancelAnimationFrame = _window.cancelAnimationFrame;
+// 用捕获到的原生全局 rAF/cAF 重新挂回 globalThis，保持其为真实实现，
+// 不要在这里挂 _window.requestAnimationFrame（那只是同一函数的包装，无意义且易出错）。
+globalThis.requestAnimationFrame = _raf;
+globalThis.cancelAnimationFrame = _caf;
 
 module.exports = {
   canvas: canvas,
@@ -463,7 +540,7 @@ module.exports = {
 };
 ```
 
-> **注意：** 以上适配器是精简但功能完整的版本。如果要在生产环境中使用第三方引擎（PixiJS、Three.js），可能需要 [weapp-adapter on GitHub](https://github.com/ct-source/weapp-adapter) 的完整版。本教程的精简版足以满足纯 Canvas 2D 游戏开发的需求。
+> **注意：** 以上适配器是精简但功能完整的版本，足以满足纯 Canvas 2D 游戏开发的需求。如果要在生产环境中使用第三方引擎（PixiJS、Three.js），建议参考微信官方提供的 [weapp-adapter 参考实现](https://developers.weixin.qq.com/minigame/dev/guide/runtime/env/adapter.html)（官方文档「适配器」章节）获取功能更完整的版本。
 
 ---
 
@@ -766,26 +843,17 @@ class AudioManager {
     this._muted = false;
     this._bgmVolume = 0.6;
     this._sfxVolume = 0.8;
-    this._audioUnlocked = false;
+    this._audioUnlocked = true; // 现代微信基础库通常无需手动解锁，保留开关以便按需扩展
 
-    // iOS requires a user gesture before playing audio
-    this._tryUnlock();
-  }
-
-  /** iOS audio context unlock */
-  _tryUnlock() {
+    // 注册一次全局音频中断恢复监听（不要放在 playBGM 里，否则会重复注册导致泄漏）
     const that = this;
-    wx.onTouchStart(function unlock() {
-      if (!that._audioUnlocked) {
-        // Play a silent sound to "unlock" the audio context
-        const silent = wx.createInnerAudioContext();
-        silent.volume = 0.001;
-        silent.src = '';
-        silent.play();
-        setTimeout(function() { silent.destroy(); }, 100);
-        that._audioUnlocked = true;
+    wx.onAudioInterruptionEnd(function() {
+      if (that._bgm && that._bgmPaused) {
+        that._bgm.play();
+        that._bgmPaused = false;
       }
     });
+    this._bgmPaused = false;
   }
 
   /** Play background music (loops automatically) */
@@ -803,17 +871,24 @@ class AudioManager {
     this._bgm.volume = this._muted ? 0 : volume;
     this._bgm.play();
     this._bgmPath = path;
-
-    // Handle audio interruption (phone calls, etc.)
-    const that = this;
-    wx.onAudioInterruptionEnd(function() {
-      if (that._bgm && !that._bgm.paused) that._bgm.play();
-    });
+    this._bgmPaused = false;
+    // 音频中断（来电等）的恢复逻辑已在构造函数中统一注册，无需在此重复注册。
   }
 
   /** Pause background music */
   pauseBGM() {
-    if (this._bgm) this._bgm.pause();
+    if (this._bgm) {
+      this._bgm.pause();
+      this._bgmPaused = true;
+    }
+  }
+
+  /** Resume background music if it was paused */
+  resumeBGM() {
+    if (this._bgm && this._bgmPaused) {
+      this._bgm.play();
+      this._bgmPaused = false;
+    }
   }
 
   /** Stop and destroy background music */
@@ -967,7 +1042,7 @@ class Game {
       scenes: {},
       images: {},
       audios: {},
-      initialScene: 'loading',
+      initialScene: 'menu', // 加载完成后进入的首个场景，切勿设为 'loading'
     }, config);
 
     // Canvas & context
@@ -1003,10 +1078,13 @@ class Game {
   _bindLifecycle() {
     const that = this;
 
-    // Game enters foreground
+    // Game enters foreground — RESUME
     wx.onShow(function(options) {
       console.log('[Game] onShow', options);
       that._paused = false;
+      // 重置计时基准，避免后台停留期间累积出一个超大 dt
+      that._lastTime = Date.now();
+      that.audio.resumeBGM();
       if (that.scene.currentScene && that.scene.currentScene.onResume) {
         that.scene.currentScene.onResume();
       }
@@ -1019,19 +1097,14 @@ class Game {
       if (that.scene.currentScene && that.scene.currentScene.onPause) {
         that.scene.currentScene.onPause();
       }
-      // Pause audio
-      if (that.audio._bgm) that.audio._bgm.pause();
+      // 通过 AudioManager 暂停，使其内部记录暂停状态，便于恢复
+      that.audio.pauseBGM();
     });
 
-    // Audio interruption (phone calls)
+    // Audio interruption (phone calls) — 中断结束后的恢复由 AudioManager 统一处理
     wx.onAudioInterruptionBegin(function() {
       that._paused = true;
-      if (that.audio._bgm) that.audio._bgm.pause();
-    });
-
-    wx.onAudioInterruptionEnd(function() {
-      that._paused = false;
-      if (that.audio._bgm && !that.audio._bgm.paused) {}
+      that.audio.pauseBGM();
     });
   }
 
@@ -1155,7 +1228,9 @@ const game = new Game({
     // ... add your audio assets here
   },
 
-  initialScene: 'loading',
+  // 资源加载完成后进入的第一个场景。注意：不能填 'loading'，
+  // 否则加载结束会再次切回加载场景，造成死循环。
+  initialScene: 'menu',
 });
 
 // 5. Launch!
@@ -1187,9 +1262,17 @@ class LoadingScene {
     const game = this.game;
     this._onComplete = (data && data.onComplete) || null;
     this.progress = 0;
+    this._done = false;
+    this._delayTimer = 0;
 
-    // Start loading assets
+    // Register audio first (audio is streamed, not preloaded)
+    if (Object.keys(game.config.audios).length > 0) {
+      game.resource.registerAudios(game.config.audios);
+    }
+
+    // Start loading assets，用 onProgress 回调驱动平滑进度条
     const that = this;
+    game.resource.onProgress(function(p) { that.progress = p; });
     if (Object.keys(game.config.images).length > 0) {
       game.resource.loadImages(game.config.images).then(function() {
         that.progress = 1;
@@ -1197,19 +1280,16 @@ class LoadingScene {
     } else {
       this.progress = 1;
     }
-
-    if (Object.keys(game.config.audios).length > 0) {
-      game.resource.registerAudios(game.config.audios);
-    }
   }
 
   onUpdate(dt) {
     // Check if loading is complete
-    if (this.progress >= 1) {
+    if (this.progress >= 1 && !this._done) {
       // Small delay so user sees the loading screen
       if (!this._delayTimer) this._delayTimer = 0;
       this._delayTimer += dt;
       if (this._delayTimer > 0.3) {
+        this._done = true; // 只触发一次，避免每帧重复切场景
         const cb = this._onComplete;
         if (cb) cb();
       }
@@ -1662,11 +1742,34 @@ module.exports = {
 };
 ```
 
+> 💡 **如何使用这两个文件：** 它们不会自动生效，需要在用到的地方按 CommonJS 方式 `require` 进来（路径相对于当前文件）。例如在 `src/scenes/GameScene.js` 顶部：
+>
+> ```javascript
+> const { rectsCollide, randInt, clamp } = require('../utils/utils');
+> const C = require('../utils/constants');
+> // 之后即可调用 rectsCollide(a, b)、randInt(0, 10)、C.GRAVITY 等
+> ```
+
 ---
 
-## 10. 本地浏览器调试（`index.html`）
+## 10. 本地浏览器调试（`index.html`，可选）
 
-通过浏览器快速迭代，无需每次都在微信开发者工具模拟器中调试：
+> 💡 **首选调试方式仍是微信开发者工具自带的模拟器**——它最贴近真机环境，零额外配置，初学者直接用它即可。本节的浏览器调试属于**进阶可选项**。
+>
+> ⚠️ **重要前提：** 本教程所有模块都用 CommonJS（`require` / `module.exports`）编写。浏览器**原生无法识别** `require` / `module.exports`，因此**不能**像下面注释里那样用一串 `<script src="...">` 直接加载这些源文件（会立即报 `require is not defined`）。要在浏览器里跑，必须先用打包工具把它们打成一个 bundle。最简单的方式是 [esbuild](https://esbuild.github.io/)：
+>
+> ```bash
+> # 安装（一次即可）
+> npm install -g esbuild
+> # 将入口 game.js 及其所有 require 依赖打包成单文件
+> esbuild game.js --bundle --outfile=dist/game.bundle.js
+> ```
+>
+> 然后在 `index.html` 中**只引入这一个打包产物**：`<script src="dist/game.bundle.js"></script>`。
+>
+> 微信开发者工具本身会处理模块打包，因此在工具内调试**不需要**这一步——仅当你想在浏览器里跑时才需要。
+
+下面是浏览器调试用的 `index.html`，其中提供了一套最小化的 `wx` API mock：
 
 ```html
 <!DOCTYPE html>
@@ -1751,9 +1854,8 @@ module.exports = {
     wx.onShow = function(fn) {};
     wx.onHide = function(fn) {};
 
-    // requestAnimationFrame
-    wx.requestAnimationFrame = function(cb) { return window.requestAnimationFrame(cb); };
-    wx.cancelAnimationFrame = function(id) { window.cancelAnimationFrame(id); };
+    // 浏览器已原生提供全局 requestAnimationFrame / cancelAnimationFrame，
+    // 而微信小游戏并没有 wx.requestAnimationFrame，故这里无需 mock 该前缀方法。
 
     wx.onAudioInterruptionBegin = function() {};
     wx.onAudioInterruptionEnd = function() {};
@@ -1773,17 +1875,11 @@ module.exports = {
       return window._wechatCanvas || c;
     };
   </script>
-  <script src="src/libs/weapp-adapter.js"></script>
-  <script src="src/core/ScreenAdapter.js"></script>
-  <script src="src/core/InputManager.js"></script>
-  <script src="src/core/ResourceLoader.js"></script>
-  <script src="src/core/AudioManager.js"></script>
-  <script src="src/core/SceneManager.js"></script>
-  <script src="src/core/Game.js"></script>
-  <script src="src/scenes/LoadingScene.js"></script>
-  <script src="src/scenes/MenuScene.js"></script>
-  <script src="src/scenes/GameScene.js"></script>
-  <script src="game.js"></script>
+  <!--
+    只引入打包后的单文件产物（见本节开头的 esbuild 说明）。
+    切勿用多个 <script src="src/...js"> 直接加载 CommonJS 源文件——浏览器无法识别 require/module.exports。
+  -->
+  <script src="dist/game.bundle.js"></script>
 </body>
 </html>
 ```
@@ -1891,49 +1987,145 @@ showRewardedAd() {
 
 ---
 
-## 12. 测试与部署
+## 12. 后续开发功能时的技术要点
 
-### 12.1 本地测试
+本节集中回答"动手写游戏功能时"最常见的平台层疑问——语言选型、数据存储、网络与边界限制。**这些是写每一个功能都会碰到的底层约束，建议在动手前通读一遍。**
+
+### 12.1 只能用 JavaScript 吗？能用 Go / Java 写吗？
+
+**游戏运行时逻辑只能用 JavaScript（及其编译产物）。** 微信小游戏运行在微信内置的 JS 引擎（iOS 用 JavaScriptCore、Android 用 V8）上，**没有** JVM、**没有** Go runtime，因此：
+
+- ❌ **不能**把 Go / Java 代码直接放进小游戏包里运行。小游戏侧最终执行的必须是 JS。
+- ✅ 你可以用**能编译成 JS / WebAssembly** 的语言间接参与：
+  - **TypeScript** → 编译成 JS，最常见、最推荐（类型系统对 Java 背景的人很友好）。
+  - **C / C++ / Rust** → 编译成 **WebAssembly（WASM）**，微信小游戏支持加载 `.wasm`，适合移植已有的物理引擎、算法库等高性能模块。
+  - **Go** → 理论上可编译为 WASM，但产物体积大、与小游戏的胶水层复杂，**不推荐**用于小游戏主体。
+
+**那 Go / Java 到底用在哪？** —— 用在**服务端**。小游戏的典型架构是「JS 客户端 + 自建后端」，你的 Java / Go 经验正好用于写后端：
+
+```mermaid
+flowchart LR
+    A[小游戏客户端<br>JavaScript] -->|wx.request / WebSocket| B[你的后端服务<br>Go / Java / etc.]
+    B --> C[(数据库)]
+    A -->|wx.login 拿 code| B
+    B -->|换取 openid/session| D[微信登录校验接口]
+```
+
+- 客户端（JS）负责渲染、输入、本地缓存；
+- 后端（你熟悉的 Go / Java）负责账号体系、排行榜、对战匹配、防作弊、数据落库；
+- 两者通过 `wx.request`（HTTP）或 `wx.connectSocket`（WebSocket）通信——本框架的适配器已把它们封装成标准的 `XMLHttpRequest` 与 `WebSocket`（见 [第 4 节](#4-适配器层)），所以你在客户端可以用熟悉的 Web 风格调用。
+
+> 💡 **与本框架的衔接：** 无论后端用什么语言，客户端这边都只是在 `GameScene` 等场景里调用 `wx.request` / `XMLHttpRequest` 拿数据、再驱动 `onUpdate`/`onRender`。框架本身不关心后端语言。
+
+### 12.2 数据存储：本地缓存（Storage）
+
+微信小游戏提供的本地存储就是**键值对缓存**（类似浏览器 `localStorage`），本框架已在适配器里封装为标准 `localStorage` 接口（见 [第 4 节](#4-适配器层)）。它的关键特性：
+
+| 维度 | 说明 |
+|------|------|
+| **是否持久化** | ✅ **是持久化的**，不是内存临时缓存。写入后跨会话、跨重启都还在 |
+| **容量上限** | **同一用户 + 同一小游戏，上限 10 MB**（所有 key 合计） |
+| **单 key 大小** | 官方对单条 value 也有大小限制（约 1 MB 量级）——**未核实精确数值**，存大对象前请实测或查最新官方文档 |
+| **隔离性** | 按「用户 × 小游戏」隔离：A 用户读不到 B 用户的数据；不同小游戏之间互不可见 |
+| **何时被清理** | **仅当代码包被清理时本地缓存才会被清理**（如用户在微信里手动清理小游戏缓存、长期不用被系统回收代码包、卸载微信等）。正常使用期间不会无故丢失，但**不应当作绝对可靠的存档**——重要数据请同步到服务端 |
+| **有无时限** | 官方未规定固定过期时间；数据不会"到期自动删"，但会随上述代码包清理而消失 |
+
+**同步与异步两套 API：**
+
+```javascript
+// —— 同步（简单、会阻塞，适合小数据）——
+wx.setStorageSync('highScore', 1000);
+const score = wx.getStorageSync('highScore'); // 不存在时返回 ''（空字符串），注意判空
+
+// —— 异步（不阻塞主线程，适合较大数据或追求流畅）——
+wx.setStorage({ key: 'profile', data: { name: 'Alice', level: 5 } });
+wx.getStorage({ key: 'profile', success: res => console.log(res.data) });
+```
+
+> ⚠️ **存对象会自动 JSON 序列化**：`wx.setStorageSync('k', {a:1})` 取出来就是对象，无需手动 `JSON.parse`。但本框架适配器里的 `localStorage.setItem` 为贴合浏览器语义做了 `String(value)` 转换——**存复杂对象时请直接用 `wx.setStorageSync`，不要用 `localStorage.setItem`**，否则对象会被存成 `"[object Object]"`。
+
+**在本框架中的推荐用法**（沿用 [第 11 节阶段四](#阶段四持久化数据) 的思路，存档/读档建议直接用 `wx` 原生 API）：
+
+```javascript
+// 存最高分（GameScene.onExit 里）
+wx.setStorageSync('highScore', this.score);
+
+// 读最高分（GameScene.onEnter 里）
+this.highScore = wx.getStorageSync('highScore') || 0;
+```
+
+### 12.3 数据存储：云端与好友排行榜
+
+如果需要**跨设备同步**或**好友排行榜**，本地 Storage 不够，需要：
+
+- **自建后端**（推荐，你的 Go/Java 强项）：客户端 `wx.login()` 拿 `code` → 后端换 `openid`/`session_key` → 你的数据库存档。最灵活、可控、能做防作弊。
+- **微信开放数据域**：`wx.getOpenDataContext()` 提供一个受限的"开放数据域"，专门用于在**不泄露好友隐私**的前提下渲染好友排行榜（通过 `wx.setUserCloudStorage` 写入用户托管数据）。这是微信特有机制，初期可先跳过，需要好友榜时再深入。
+
+### 12.4 网络请求的硬性限制
+
+写联网功能前必须知道的两条平台规则：
+
+1. **必须 HTTPS**：`wx.request` 只允许 `https://`（WebSocket 只允许 `wss://`），不支持明文 `http://`。
+2. **合法域名白名单**：**正式版**只能请求在「小程序后台 → 开发管理 → 开发设置 → 服务器域名」中**预先配置**的域名。未配置的域名在真机正式环境会被拦截。
+   > 💡 开发期可在开发者工具里勾选「不校验合法域名」临时绕过，但**上线前必须在后台配好白名单**，否则真机请求全部失败。
+
+### 12.5 其他写功能时的常见约束
+
+| 约束 | 说明 |
+|------|------|
+| **包体积** | 主包有大小上限（数 MB 量级），超大资源应拆 **分包（subpackages）** 或放 CDN 远程加载 |
+| **没有 DOM** | 不能用 `document.getElementById`、HTML 标签、CSS 布局；所有 UI 都靠 Canvas 自己画（按钮、文本都是 `ctx.fillRect`/`fillText` 画出来的，命中检测靠坐标判断，参考 `MenuScene._onTap`） |
+| **定时器与后台** | 切后台后 `setTimeout`/`setInterval` 会被节流甚至暂停；游戏时间请用 `onUpdate(dt)` 的 `dt` 累加，而非依赖墙上时钟（框架已在 `onHide/onShow` 正确处理，见 [第 6 节](#6-游戏引擎srccoregamejs)） |
+| **文件系统** | 只能通过 `wx.getFileSystemManager()` 读写**用户目录沙箱**内的文件，不能任意访问设备文件系统 |
+| **多线程** | 仅支持微信受限的 **Worker**（`game.json` 里声明 `workers` 目录），不是完整的系统线程；CPU 密集任务建议上 WASM 或后端 |
+
+---
+
+## 13. 测试与部署
+
+### 13.1 本地测试
 1. 在微信开发者工具中打开项目
 2. 使用模拟器快速迭代
 3. 点击 **预览** 生成二维码 → 用手机微信扫码进行真机测试
 
-### 12.2 性能检查清单
+### 13.2 性能检查清单
 
 | 项目 | 说明 |
 |------|------|
-| **60 FPS 目标** | 使用 `Date.now()` delta time（已在 `Game.js` 中处理） |
-| **内存** | 微信小游戏内存上限约 128MB；在 DevTools 中用 `performance.memory.usedJSHeapSize` 监控 |
+| **60 FPS 目标** | 使用基于时间差（delta time）的更新逻辑（已在 `Game.js` 中处理），保证不同帧率下速度一致 |
+| **内存** | 真机内存吃紧时易被系统回收；用 `wx.onMemoryWarning(res => ...)` 监听内存告警（`res.level` 表示等级），收到告警时主动释放纹理/音频等资源。注意：小游戏运行时**不支持** `performance.memory.usedJSHeapSize`，请勿依赖它 |
 | **纹理尺寸** | 使用 2 的幂次方尺寸（256×256、512×512），以获得更好的 GPU 性能 |
 | **图集合批** | 将小图片合并为 atlas 图集以减少 draw calls |
 
-### 12.3 上传与提审
+### 13.3 上传与提审
 1. 在微信开发者工具中点击 **上传**
 2. 设置版本号和描述
 3. 前往 [mp.weixin.qq.com](https://mp.weixin.qq.com/) → 开发管理
 4. 提交版本进行审核
 
-### 12.4 常见问题排查
+### 13.4 常见问题排查
 
 | 问题 | 解决方法 |
 |------|----------|
-| "global is not defined" | 确保 `weapp-adapter.js` 在任何其他模块之前加载 |
-| Canvas 使用 "game" 作为 `libVersion` | 改为 `"widelyUsed"` 或具体版本号如 `"2.32.3"` |
-| iOS 上音频无法播放 | 首次音频必须由用户触摸事件触发（`AudioManager._tryUnlock` 已处理此问题） |
-| 图片加载失败 | 使用相对路径；确认文件名大小写完全一致 |
+| `require is not defined`（浏览器中） | 浏览器无法直接加载 CommonJS 源文件，需先用 esbuild/webpack 打包（见第 10 节）；在微信开发者工具内调试则无此问题 |
+| `wx.requestAnimationFrame is not a function` | 小游戏没有此 API，只有**全局** `requestAnimationFrame`；删除所有 `wx.` 前缀的 rAF 调用（适配器已处理） |
+| `window`/`document` is not defined | 确保 `weapp-adapter.js` 在任何引用浏览器 API 的模块之前加载（`game.js` 第一行即 require 它） |
+| `libVersion` 报错 | `libVersion` 应填 `"widelyUsed"` 或具体版本号（如 `"2.32.3"`），切勿填 `"game"` 等非法值 |
+| iOS 上音频无法播放 | 现代基础库一般无需手动解锁；若仍有问题，确保首次播放发生在用户触摸事件的回调中 |
+| 图片加载失败 | 使用相对路径；确认文件名大小写完全一致（真机区分大小写，模拟器可能不区分） |
 | `wx.request` 被拦截 | 在小程序后台将 API 域名添加到 request 合法域名白名单 |
-| 低端设备卡顿 | 减少粒子数量、精灵尺寸；通过 `wx.getSystemInfoSync().benchmarkLevel` 判断设备性能并动态调整画质 |
+| 低端设备卡顿 | 减少粒子数量、精灵尺寸；通过 `wx.getDeviceInfo().benchmarkLevel`（旧版用 `wx.getSystemInfoSync().benchmarkLevel`）判断设备性能并动态调整画质 |
 
 ---
 
-## 13. 关键微信 API 速查表
+## 14. 关键微信 API 速查表
 
 | 分类 | API | 用途 |
 |------|-----|------|
 | **Canvas** | `wx.createCanvas()` | 创建上屏或离屏 Canvas |
 | **图片** | `wx.createImage()` | 加载并解码图片 |
 | **音频** | `wx.createInnerAudioContext()` | 播放音频（BGM 或 SFX） |
-| **定时** | `wx.requestAnimationFrame()` | 游戏循环驱动（优先使用，而非 `setInterval`） |
+| **定时** | 全局 `requestAnimationFrame()` | 游戏循环驱动（优先使用，而非 `setInterval`；**无** `wx.` 前缀） |
 | **输入** | `wx.onTouchStart/Move/End()` | 触摸事件 |
 | **存储** | `wx.getStorageSync()` / `wx.setStorageSync()` | 持久化键值存储 |
 | **网络** | `wx.request()` | HTTP 请求 |
@@ -1948,20 +2140,21 @@ showRewardedAd() {
 
 ---
 
-## 14. 总结
+## 15. 总结
 
 你现在已经拥有：
 
 1. 一个**可直接用于生产的项目骨架**，所有微信平台集成代码均已就绪
 2. 一个**模块化框架**——`Game`、`SceneManager`、`InputManager`、`AudioManager`、`ResourceLoader`、`ScreenAdapter`
 3. 一个**可运行的示例**——加载 → 菜单 → 游戏场景的完整流程，包含触摸控制和音频
-4. 一套**本地调试方案**——`index.html` 内置微信 API Mock，可在浏览器中开发
+4. 一套**本地调试方案**——首选微信开发者工具模拟器；进阶可用 `index.html` + 打包工具在浏览器中调试
 5. 一条**清晰的路径**——添加游戏逻辑、资源、变现功能
+6. 一份**平台技术约束清单**（[第 12 节](#12-后续开发功能时的技术要点)）——语言选型、本地存储、网络限制等写功能时必碰的底层规则
 
 从此以后，你再也不需要碰任何微信框架接入代码。打开 `GameScene.js`，编写你的 `onUpdate()` 和 `onRender()`，然后专注于做游戏。
 
 ---
 
-> **知识截止日期：** 2025-06。本教程中引用的微信小游戏 API 和基础库版本截至 2025 年中有效。请始终查阅 [官方文档](https://developers.weixin.qq.com/minigame/dev/guide/) 获取最新的 API 变更和废弃通知。
+> **知识截止日期：** 2026-06-21。本教程中关于 `requestAnimationFrame`（无 `wx.` 前缀）、`compileType: "minigame"`、`project.config.json` 字段、本地存储「10 MB / 用户 / 小游戏」「随代码包清理才清空」「按用户隔离」等关键事实已对照官方文档核对；单 key 大小上限（约 1 MB 量级）**未核实精确数值**，已在 [12.2](#122-数据存储本地缓存storage) 标注。请始终查阅 [官方文档](https://developers.weixin.qq.com/minigame/dev/guide/) 获取最新的 API 变更和废弃通知。
 
-> **参考来源：** [微信小游戏官方开发指南](https://developers.weixin.qq.com/minigame/dev/guide/)、[weapp-adapter GitHub](https://github.com/ct-source/weapp-adapter)、微信开发者工具文档。
+> **参考来源：** [微信小游戏官方开发指南](https://developers.weixin.qq.com/minigame/dev/guide/)、[适配器（weapp-adapter）官方说明](https://developers.weixin.qq.com/minigame/dev/guide/runtime/env/adapter.html)、[小游戏 project.config.json 配置](https://developers.weixin.qq.com/minigame/dev/devtools/projectconfig.html)、[小程序/小游戏本地存储能力](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/storage.html)、微信开发者工具文档。
