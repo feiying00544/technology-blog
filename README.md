@@ -9,6 +9,7 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | Title | Description |
 |-------|-------------|
 | [Agent / Skill / MCP / Workflow Guide](AI/agent-skill-mcp-workflow-guide.md) | Compare AI coding-tool extension mechanisms across Claude Code, Codex, and Copilot |
+| [AI Coding Collaboration Rules](AI/ai-coding-collaboration-rules.md) | Personal coding collaboration rules and how to apply them globally in Claude Code, Codex, and Copilot |
 
 ## Git
 
