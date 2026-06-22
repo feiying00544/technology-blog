@@ -1,20 +1,32 @@
 # dev-language-polisher 使用与迁移说明
 
-`dev-language-polisher` 是一个可迁移的 `SKILL.md` 能力，用于把中文或英文的开发沟通文本润色为更正式、自然的美式英语表达。
+`dev-language-polisher` 是一个可迁移的 `SKILL.md` 能力，用于把中文或英文的开发沟通文本翻译并润色为自然、正式的美式英语，并修复原文中的语法和拼写错误。
+
+它的主输出是一段忠实、自然的翻译；当原文是开发变更/任务描述时，再补充按用途分类的表达。
 
 它会使用适合 IDE Chat 自动换行的 Markdown 分区输出：
 
-**Oral**
+**翻译（Translation）：**
 
-美式英语口语表达。
+> 忠实、自然且语法正确的美式英语翻译。
 
-**Written**
+当原文是开发变更/任务描述时，补充：
 
-美式英语书面表达。
+**作为 Jira Task / Story Title（推荐）：**
 
-**说明**
+> 适合作为 Jira task 或 story 标题的英文表达。
 
-- 中文说明。
+**作为 Git Commit Message：**
+
+> 适合作为 Git commit message 的英文表达。
+
+**作为 Release Note 或项目成果描述：**
+
+> 适合作为 release note、项目成果描述或状态总结的英文表达。
+
+**其中：**
+
+- 用中文说明语法修复、错别字、词语选择和语气差异。
 - 如果内容较长，会按语义拆成短段落或短列表。
 
 该格式不会把最终结果放入代码块，避免 IDEA 或 VS Code 的 Chat 面板出现横向滚动条。
