@@ -19,6 +19,12 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | [GitLab SMTP Configuration](Git/gitlab-smtp-configuration.md) | Configure SMTP email notifications for GitLab |
 | [Git Multiple SSH Keys](Git/git-multiple-ssh-keys.md) | Add SSH keys for multiple Git accounts on one machine |
 
+## Java
+
+| Title | Description |
+|-------|-------------|
+| [JDK Multi-Version Switch on Windows](Java/jdk-multi-version-switch.md) | Install and switch between multiple JDK versions using batch scripts |
+
 ## Golang
 
 | Title | Description |

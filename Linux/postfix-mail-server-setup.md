@@ -186,7 +186,7 @@ helo mail.hesh.com
 250 mail.hesh.com
 mail from:gitlab@hesh.com
 250 2.1.0 Ok
-rcpt to:feiying00544@163.com
+rcpt to:user@example.com
 250 2.1.5 Ok
 data
 354 End data with <CR><LF>.<CR><LF>

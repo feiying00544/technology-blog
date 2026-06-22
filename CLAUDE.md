@@ -49,6 +49,12 @@ Each blog post should follow this structure:
 - **Code/config snippets, frontmatter, CLI commands:** English original form only
 - **README index entries:** English only
 
+### Sensitive Information
+
+- Documents **must not** contain real personal information: usernames, personal email addresses, real names, or file paths with personal identifiers
+- Replace with generic placeholders: `your-username`, `yourname@example.com`, `user@example.com`, `C:\Users\your-username\`
+- Exception: well-known public service domains (e.g., `smtp.sina.com`, `gmail.com`) used in configuration examples are acceptable, but accounts/addresses must still be masked
+
 ### Image Assets
 
 Images go in `uploads/` and are referenced by their hash-based filenames.
