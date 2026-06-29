@@ -28,6 +28,40 @@ This is a personal technology blog/knowledge base written entirely in Markdown. 
 
 - 提交说明（commit message）**不超过 4 行**。
 - **禁止**包含 `Co-Authored-By` 行（或任何协作者署名）。
+- Commit message **必须**以 `[动作][模块]` 前缀开头，格式如下：
+
+  ```
+  [Action][Module1,Module2]Summary of the change
+  Optional body line 1
+  Optional body line 2
+  ```
+
+  **Action（动作类型）：**
+
+  | Action   | 含义           |
+  |----------|---------------|
+  | Fix      | 修复 bug / 问题 |
+  | Modify   | 修改 / 重构     |
+  | Add      | 新增功能或文件   |
+  | Remove   | 删除功能或文件   |
+
+  **Module（模块/类型）：** 多个模块以 `,` 分隔，放在同一对 `[]` 内。模块名取自实际变更涉及的目录或功能域，例如：`Doc`、`AI`、`Git`、`Golang`、`Linux`、`PHP`、`MiniGame`、`Skill`、`ClaudeCode`、`Copilot`、`README` 等。
+
+  **示例：**
+
+  ```
+  [Modify][Skill,Doc,ClaudeCode,Copilot]Refactor code-review skill and update language polisher
+  Generalize p4-code-review into code-review (Git PR/MR + Perforce) for
+  ClaudeCode and Copilot, drop review-config.md, refresh dev-language-polisher.
+  ```
+
+  ```
+  [Fix][Linux]Correct Nginx reverse proxy config example
+  ```
+
+  ```
+  [Add][AI]Add RAG pipeline architecture overview
+  ```
 
 ### Document Format
 
