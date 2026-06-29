@@ -133,17 +133,28 @@
 - 同一项目里不要维护多份语义重复又可能冲突的规则文件。
 - 如果工具同时加载多份规则，尽量避免写相反约束；必须冲突时，以更具体、更靠近任务的规则为准。
 
+### 全局规则文件语言选择：英文优先
+
+全局规则文件（`CLAUDE.md`、`copilot-instructions.md`、`AGENTS.md`）建议使用**英文**书写执行约束，但在规则中明确"输出语言为中文"的偏好。原因如下：
+
+1. **与工具内部语义对齐**：Claude Code、Copilot、MCP、Skill、frontmatter、tool name、error handling 等概念本身以英文为主。英文规则减少一次"中文意图 → 英文执行概念"的隐性转换。
+2. **更贴合模型训练分布**：`must / must not / before / after / only when / unless explicitly requested` 这类英文 imperative 指令在训练语料中大量存在，模型执行更稳定。
+3. **技术边界更不容易歧义**：中文里"优化""完善""处理一下"偏泛义，英文可以精确到动作级别。
+4. **Copilot discovery 场景友好**：`*.instructions.md`、`*.prompt.md`、`*.agent.md` 的 `description` 字段用英文关键词更容易触发。
+
+> **注意**：这不是说"全部内容必须英文"。规则中的"语言偏好"一节仍应明确写出"与用户用中文沟通"，确保 AI 的输出语言不变。
+
 ---
 
 ## 三、当前本机同步状态
 
-本文第一节是当前个人全局规则的单一事实来源。
+本文第一节是当前个人全局规则的**语义来源**（中文版本）。实际部署到 Agent 全局文件时，使用英文改写版（见下方路径）。
 
-- Claude Code 全局规则：`C:\Users\lsfeng\.claude\CLAUDE.md`
-- GitHub Copilot 全局规则：`C:\Users\lsfeng\.copilot\copilot-instructions.md`
-- Codex 全局规则：未默认创建；需要时可把第一节复制到 `C:\Users\lsfeng\.codex\AGENTS.md`
+- Claude Code 全局规则：`C:\Users\your-username\.claude\CLAUDE.md`（英文版）
+- GitHub Copilot 全局规则：`C:\Users\your-username\.copilot\copilot-instructions.md`（英文版）
+- Codex 全局规则：未默认创建；需要时可将英文版复制到 `C:\Users\your-username\.codex\AGENTS.md`
 
-go-tool 这类项目专属约束不放进通用全局规则，而是放在项目自己的规则文件中，例如：
+项目专属约束不放进通用全局规则，而是放在项目自己的规则文件中，例如：
 
 - `D:\code\go\src\go-tool\CLAUDE.md`
 
@@ -267,9 +278,10 @@ Skill 不是普通规则，而是针对特定任务的固定工作流。
 
 ## 五、维护约定
 
-- 核心全局规则以本文第一节为单一事实来源。
-- 修改本文第一节后，同步更新 Claude Code、Copilot，以及需要时的 Codex 全局规则文件。
+- 核心全局规则以本文第一节（中文版）为语义来源。
+- 实际部署到 Agent 全局文件时，使用对应的**英文改写版**。
+- 修改第一节语义后，需同步更新英文版全局文件（`~/.claude/CLAUDE.md`、`~/.copilot/copilot-instructions.md`），以及需要时的 Codex 文件。
 - 项目级规则只写项目特有内容，不重复整份全局规则。
 - 子目录规则只写局部特殊约束，不复制整份全局规则。
-- go-tool 专项规则不放进通用全局规则，维护在 `D:\code\go\src\go-tool\CLAUDE.md`。
+- 项目专项规则（如 go-tool）不放进通用全局规则，维护在各自项目的规则文件中。
 - 时效性内容（路径、字段、命令）以最新官方文档为准。
