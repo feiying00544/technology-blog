@@ -38,12 +38,6 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 |-------|-------------|
 | [Postfix Mail Server Setup](Linux/postfix-mail-server-setup.md) | Build a Postfix mail system with DNS on CentOS 7 |
 
-## MiniGame
-
-| Title | Description |
-|-------|-------------|
-| [WeChat Mini Game: Zero to Development Framework](MiniGame/wechat-minigame-zero-to-dev.md) | Complete zero-to-game tutorial for WeChat Mini Game — build a reusable framework and jump straight into game logic |
-
 ## PHP
 
 | Title | Description |

@@ -8,7 +8,7 @@ This is a personal technology blog/knowledge base written entirely in Markdown. 
 
 ## Structure
 
-- Each topic area has its own directory: `AI/`, `Git/`, `Golang/`, `Linux/`, `MiniGame/`, `PHP/`
+- Each topic area has its own directory: `AI/`, `Git/`, `Golang/`, `Java/`, `Linux/`, `PHP/`
 - `README.md` is the sole index/table of contents for all documents
 - `uploads/` contains images referenced by blog posts
 
@@ -45,7 +45,7 @@ This is a personal technology blog/knowledge base written entirely in Markdown. 
   | Add      | 新增功能或文件   |
   | Remove   | 删除功能或文件   |
 
-  **Module（模块/类型）：** 多个模块以 `,` 分隔，放在同一对 `[]` 内。模块名取自实际变更涉及的目录或功能域，例如：`Doc`、`AI`、`Git`、`Golang`、`Linux`、`PHP`、`MiniGame`、`Skill`、`ClaudeCode`、`Copilot`、`README` 等。
+  **Module（模块/类型）：** 多个模块以 `,` 分隔，放在同一对 `[]` 内。模块名取自实际变更涉及的目录或功能域，例如：`Doc`、`AI`、`Git`、`Golang`、`Java`、`Linux`、`PHP`、`Skill`、`ClaudeCode`、`Copilot`、`README` 等。
 
   **示例：**
 
@@ -109,7 +109,7 @@ When a document benefits from a flowchart or diagram, use Mermaid syntax. All Me
 
 每次执行"整理/新增文档"任务时，直接照以下步骤做即可复用：
 
-1. **选目录与文件名**：放入合适的主题目录（`AI/`、`Git/`、`Golang/`、`Linux/`、`MiniGame/`、`PHP/`），文件名用英文 kebab-case，格式 `topic-purpose.md`。
+1. **选目录与文件名**：放入合适的主题目录（`AI/`、`Git/`、`Golang/`、`Java/`、`Linux/`、`PHP/`），文件名用英文 kebab-case，格式 `topic-purpose.md`。
 2. **文档骨架**：H1 标题（英文、描述性）→ 一行中文摘要 → `---` 分隔线 → H2 分节；必要时摘要下加多行 blockquote 补充背景。
 3. **语言约定（强制规则）**：
    - **文档文件名和标题**：统一使用**英文**。
