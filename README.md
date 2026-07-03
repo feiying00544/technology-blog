@@ -19,6 +19,7 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | [GitLab Docker Deployment](Git/gitlab-docker-deployment.md) | Deploy GitLab CE using Docker and Docker Compose |
 | [GitLab SMTP Configuration](Git/gitlab-smtp-configuration.md) | Configure SMTP email notifications for GitLab |
 | [Git Multiple SSH Keys](Git/git-multiple-ssh-keys.md) | Add SSH keys for multiple Git accounts on one machine |
+| [Git Remove Wrongly Committed Files](Git/git-remove-wrongly-committed-files.md) | Remove already-pushed files from tracking without rewriting history |
 
 ## Java
 
