@@ -7,6 +7,8 @@ description: Review a Perforce CL, Git PR/MR, or commit with project-aware check
 
 Perform a thorough, evidence-based code review for a Perforce CL, Git PR/MR, or commit.
 
+> This file is kept in sync with `AI/ClaudeCode/skills/code-review/SKILL.md`. Any change here must be mirrored there.
+
 In this repository, Perforce CL review is the primary path. Prefer project-specific rules from `.claude/review-config.md` when present, and also read `.github/copilot-instructions.md` for repository background.
 
 ## Input handling
@@ -112,6 +114,17 @@ Apply both project-specific checks and this generic checklist:
 - Configuration: cross-region or cross-environment consistency and valid syntax.
 - Reuse and maintainability: use existing helpers and keep logic consistent with surrounding code.
 
+### 严重级别定义
+
+对每个 finding 按下表判定级别，保持跨次评审一致：
+
+| 级别 | 判定标准 |
+|------|---------|
+| Blocker | 会导致数据错误/丢失、崩溃、安全漏洞、或破坏对外兼容（API/schema/序列化/协议）。必须修复后才能合入。 |
+| Major | 存在真实的正确性或并发/性能风险，但需特定输入、时序或环境才触发。合入前应解决或给出明确缓解。 |
+| Minor | 可维护性、可读性、复用问题，或未覆盖的次要边界；不影响功能正确性。 |
+| Nit | 风格或措辞层面的小建议，可选修改。 |
+
 ## Step 4.5: CL Comment 规范检查（仅 Perforce CL）
 
 此步骤仅对 Perforce CL 生效，Git PR/MR 跳过。检查结果为 **Advisory（建议性）**，不影响"是否可合入"结论。
@@ -139,7 +152,7 @@ reviewed by linwei, fengls, pit by shu,zhang
 | # | 要素 | 规则 |
 |---|------|------|
 | 1 | 类型标记 | 首行须以 `#feature`、`#fix`、`#refactor`、`#config` 等类型标记开头 |
-| 2 | >TTM< 标记 | 若分支名含 `RL` 或 `Stage`（不区分大小写），则首行须包含 `>TTM<` |
+| 2 | >TTM< 标记 | 分支名由 Perforce 路径推导：`//FIFAM/` 之后的第一段即分支名（如 `//FIFAM/R32RL/server/...` → `R32RL`），所有 Perforce 代码遵守此约定。若分支名含 `RL` 或 `Stage`（不区分大小写），则首行须包含 `>TTM<` |
 | 3 | 功能模块 | 首行须包含 `[模块名]`，如 `[NXCommand]`、`[LiveOps]` |
 | 4 | JASS 工单号 | 首行须包含 `[FMG-XXXXXX]` 格式的工单号 |
 | 5 | 修改内容描述 | 首行工单号之后须有实际修改内容的文字说明 |
@@ -155,9 +168,9 @@ reviewed by linwei, fengls, pit by shu,zhang
 
 ## Step 5: Validate when feasible
 
-- For code changes, run the most targeted existing build, type-check, linter, or tests that are practical for the affected module.
-- For config-only changes, validate syntax where tooling exists.
-- If validation cannot be run, say so in the review confidence section.
+- Do NOT run build, compilation, or tests for this review. Rely on static reading and repository context instead.
+- For config-only changes, validate syntax by reading, not by executing build tooling.
+- State in the review confidence section that no build/test was run and note any risk this leaves unverified.
 
 ## Step 6: Output report
 
@@ -170,6 +183,13 @@ Each finding must include:
 - category
 - factual evidence
 - concrete recommendation
+
+合入判定规则（写入「总评 / 是否可合入」）：
+
+- 存在任一未解决 Blocker → **不可合入**。
+- 存在未解决 Major（无 Blocker）→ **有条件合入**，需先解决或给出经确认的缓解。
+- 仅有 Minor / Nit 或无 finding → **可合入**。
+- CL Comment 规范检查为 Advisory，不参与此判定。
 
 Use this structure:
 
@@ -220,8 +240,15 @@ Use this structure:
 - [ ] 核验签名变更影响面
 - [ ] 核验新增 helper 契约
 - [ ] 追踪跨模块 producer/consumer 或配置影响
-- [ ] 运行相关验证，或说明未运行原因
+- [ ] 已说明未运行 build/测试，及由此遗留的未验证风险
 ```
+
+## Review stance
+
+- Adopt an adversarial mindset: for each changed hunk, actively try to construct an input, timing, or environment under which it breaks before concluding it is correct.
+- Default to "not yet verified" rather than "looks fine". A hunk is only listed under 合理改动 after you have read enough context to rule out the failure modes in Step 4, not because it reads plausibly.
+- Any claim that there is no problem must be backed by evidence you actually gathered (files read, references traced), not by assumption.
+- Rigor means deeper verification, not a longer issue list. Never invent findings to appear thorough; zero findings is a valid outcome when the change is genuinely clean.
 
 ## Constraints
 
