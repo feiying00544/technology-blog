@@ -11,6 +11,7 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | [Agent / Skill / MCP / Workflow Guide](AI/agent-skill-mcp-workflow-guide.md) | Compare AI coding-tool extension mechanisms across Claude Code, Codex, and Copilot |
 | [AI Coding Collaboration Rules](AI/ai-coding-collaboration-rules.md) | Personal coding collaboration rules and how to apply them globally in Claude Code, Codex, and Copilot |
 | [Task-Based Model Routing](AI/task-based-model-routing.md) | Route tasks to specific models and effort tiers via subagents (Claude Code) and custom agents (Copilot) |
+| [Commit Skill](AI/ClaudeCode/skills/commit/README.md) | Claude Code skill for auto-detecting commit conventions and validating message format via PreToolUse hook |
 
 ## Git
 
