@@ -66,28 +66,33 @@ docker run -d \
 ### Option B: Docker Compose
 
 ```yaml
-version: '2'
 services:
-  gitlab-ce:
-    image: gitlab/gitlab-ce
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab-ce
     restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      TZ: 'Asia/Shanghai'
+      GITLAB_OMNIBUS_CONFIG: |
+        # Put any other gitlab.rb configuration here, each on its own line
+        external_url 'https://gitlab.example.com'
     ports:
       - "8443:443"
       - "8880:8880"
       - "8822:22"
-      - "465:465"
-    container_name: gitlab-ce
     volumes:
       - /opt/docker_data/gitlab/config:/etc/gitlab
       - /opt/docker_data/gitlab/logs:/var/log/gitlab
       - /opt/docker_data/gitlab/data:/var/opt/gitlab
-    environment:
-      - TZ=Asia/Shanghai
+    shm_size: '256m'
 ```
 
 ```bash
-docker-compose -f docker-compose.yml up -d
+docker compose up -d
 ```
+
+> `shm_size` 用于加大共享内存，GitLab 官方 Compose 示例建议设置为 `256m`，避免部分组件因共享内存不足报错。`GITLAB_OMNIBUS_CONFIG` 可直接内联 `gitlab.rb` 配置，免去手动改文件后 reconfigure。
 
 ## Step 4: Configure External URL
 
@@ -117,4 +122,41 @@ Or reload configuration inside the container:
 
 ```bash
 gitlab-ctl reconfigure
+```
+
+## Step 6: First Login
+
+初始用户名为 `root`，初始密码保存在容器内 `/etc/gitlab/initial_root_password`：
+
+```bash
+docker exec -it gitlab-ce cat /etc/gitlab/initial_root_password
+```
+
+> 该文件在容器首次启动约 24 小时后会被自动清除，请尽快登录并修改密码。
+
+## Backup and Restore
+
+创建备份（备份文件默认位于 `/var/opt/gitlab/backups`）：
+
+```bash
+docker exec -t gitlab-ce gitlab-backup create
+```
+
+恢复备份：
+
+```bash
+docker exec -it gitlab-ce gitlab-backup restore
+```
+
+> **版本差异：** GitLab 12.2 起使用 `gitlab-backup create/restore`；12.1 及更早版本使用旧命令 `gitlab-rake gitlab:backup:create` / `gitlab-rake gitlab:backup:restore`。备份仅包含仓库与数据库，`/etc/gitlab` 下的配置与密钥需另行备份。
+
+## Firewall (Ubuntu ufw, Optional)
+
+若宿主机启用了 ufw 防火墙，需放行对外端口：
+
+```bash
+sudo ufw enable
+sudo ufw allow 8880
+sudo ufw allow 8443
+sudo ufw allow 8822
 ```

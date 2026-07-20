@@ -13,6 +13,15 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | [Task-Based Model Routing](AI/task-based-model-routing.md) | Route tasks to specific models and effort tiers via subagents (Claude Code) and custom agents (Copilot) |
 | [Commit Skill](AI/ClaudeCode/skills/commit/README.md) | Claude Code skill for auto-detecting commit conventions and validating message format via PreToolUse hook |
 
+## Docker
+
+| Title | Description |
+|-------|-------------|
+| [Docker Installation and Common Commands](Docker/docker-installation-and-commands.md) | Install Docker CE on RHEL-family and Ubuntu, configure mirrors, and everyday CLI reference |
+| [Dockerfile Guide](Docker/dockerfile-guide.md) | Dockerfile instruction reference, a full example, and image build best practices |
+| [Docker Compose Guide](Docker/docker-compose-guide.md) | Install Compose V2 plugin and common `docker compose` commands |
+| [Docker Registry and Nexus Deployment](Docker/docker-registry-and-nexus.md) | Run a private image registry and a Nexus3 artifact repository with Docker |
+
 ## Git
 
 | Title | Description |
