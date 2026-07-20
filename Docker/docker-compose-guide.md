@@ -100,14 +100,59 @@ docker compose -f docker-compose.yml -p server up -d
 ```bash
 docker compose ps          # 查看服务状态
 docker compose logs -f     # 跟踪日志
+docker compose logs -f --tail=200 <service>  # 仅看某服务最近日志
 docker compose stop        # 停止服务（不删除容器）
+docker compose start       # 启动已存在但停止的服务容器
+docker compose restart     # 重启服务
 docker compose down        # 停止并删除容器、网络
 docker compose down -v     # 同时删除数据卷（谨慎）
 docker compose pull        # 拉取镜像
 docker compose build       # 构建镜像
+docker compose images      # 查看 compose 管理的镜像
+docker compose rm -f       # 删除已停止的服务容器
+docker compose exec <service> sh   # 进入运行中的服务容器
+docker compose run --rm <service> sh  # 临时运行一次性命令并自动删除容器
+docker compose config      # 渲染并校验最终配置（含变量替换）
+docker compose events      # 查看实时事件流
 ```
 
 > **注意：** V2 中所有命令均为 `docker compose`（空格）。旧文档中的 `docker-compose`（连字符）仅在保留了 V1 二进制或安装了兼容 wrapper 时可用；新环境请统一使用 V2 写法。
+
+---
+
+## 进阶用法
+
+### 使用 Profiles 按环境启停服务
+
+`profile` 可把调试/可选组件从默认启动集合中分离：
+
+```yaml
+services:
+  app:
+    image: myapp:latest
+  phpmyadmin:
+    image: phpmyadmin:latest
+    profiles: ["debug"]
+```
+
+```bash
+# 默认只启动无 profile 的服务（这里是 app）
+docker compose up -d
+
+# 显式启用 debug profile
+docker compose --profile debug up -d
+```
+
+### 多 Compose 文件合并
+
+常见做法是 `base + override`：
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml config
+docker compose -f compose.yaml -f compose.prod.yaml up -d
+```
+
+后面的文件会覆盖前面的同名字段，适合按环境切换镜像 tag、资源限制、端口等差异配置。
 
 ---
 

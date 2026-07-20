@@ -224,6 +224,68 @@ docker commit -a "Marshal" -m "base-util" base-util base-util:latest
 docker login --username=<账号> ccr.ccs.tencentyun.com
 ```
 
+### 拉取 / 标记 / 推送镜像
+
+```bash
+# 拉取镜像
+docker pull nginx:1.27
+
+# 本地重命名（打 tag）
+docker tag nginx:1.27 registry.example.com/base/nginx:1.27
+
+# 推送到远端仓库
+docker push registry.example.com/base/nginx:1.27
+```
+
+### 容器诊断与排障
+
+```bash
+# 查看容器详细元数据（挂载、网络、启动参数等）
+docker inspect <容器ID或名称>
+
+# 实时查看容器资源使用
+docker stats
+docker stats <容器ID或名称>
+
+# 查看容器内进程
+docker top <容器ID或名称>
+
+# 宿主机与容器间拷贝文件
+docker cp ./app.conf <容器ID或名称>:/etc/app/app.conf
+docker cp <容器ID或名称>:/var/log/app.log ./app.log
+```
+
+### 清理磁盘与无用资源
+
+```bash
+# 查看 Docker 磁盘占用明细
+docker system df
+
+# 清理停止的容器、悬空镜像、未使用网络、构建缓存
+docker system prune
+
+# 同时清理未被任何容器使用的镜像（谨慎）
+docker system prune -a
+
+# 分类型清理（按需）
+docker image prune
+docker container prune
+docker network prune
+docker volume prune
+```
+
+> `prune` 系列命令具有删除性，建议先在测试环境验证，或先用 `docker system df` 评估后再执行。
+
+### 常见运行增强参数
+
+```bash
+# 从文件批量加载环境变量
+docker run --env-file .env --name app -d myapp:latest
+
+# 在运行中的容器里以指定用户执行命令
+docker exec -u root -it <容器ID或名称> /bin/bash
+```
+
 ### 自定义格式输出容器列表
 
 以表格形式输出 `NAMES` 与 `IMAGE`，制表符分隔：
