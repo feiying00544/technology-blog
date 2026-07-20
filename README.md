@@ -49,6 +49,15 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 |-------|-------------|
 | [Postfix Mail Server Setup](Linux/postfix-mail-server-setup.md) | Build a Postfix mail system with DNS on CentOS 7 |
 
+## MySQL
+
+| Title | Description |
+|-------|-------------|
+| [MySQL Fundamentals and Storage Engine Internals](MySQL/mysql-fundamentals.md) | Index structures, clustered vs secondary indexes, InnoDB vs MyISAM, locking, data type ranges, and SQL injection defense |
+| [MySQL Common Commands and Administration](MySQL/mysql-common-commands.md) | Everyday MySQL 8.0 commands: connection, DDL/DML, users and privileges, backup, charset, capacity queries, and 5.x-to-8.0 troubleshooting |
+| [MySQL 8 JSON Usage](MySQL/mysql8-json.md) | JSON data type, partial updates, common JSON functions, and multi-valued indexes |
+| [MySQL Benchmarking with mysqlslap and sysbench](MySQL/mysql-benchmark.md) | Stress-test MySQL with mysqlslap and sysbench, including OLTP test flow and parameters |
+
 ## PHP
 
 | Title | Description |
