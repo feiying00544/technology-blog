@@ -58,6 +58,12 @@ Personal knowledge base covering DevOps, backend development, and system adminis
 | [MySQL 8 JSON Usage](MySQL/mysql8-json.md) | JSON data type, partial updates, common JSON functions, and multi-valued indexes |
 | [MySQL Benchmarking with mysqlslap and sysbench](MySQL/mysql-benchmark.md) | Stress-test MySQL with mysqlslap and sysbench, including OLTP test flow and parameters |
 
+## AWS
+
+| Title | Description |
+|-------|-------------|
+| [Amazon DynamoDB Complete Guide](AWS/dynamodb-guide.md) | Core concepts, capacity modes, TTL, Global Tables (MREC/MRSC), API limits, pricing, and best practices |
+
 ## PHP
 
 | Title | Description |
